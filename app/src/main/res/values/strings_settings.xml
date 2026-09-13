@@ -154,7 +154,7 @@
     <string name="help_delete_title">Delete APK after installation</string>
     <string name="help_delete_body">Works for files you pick inside the app. When another app hands the APK over — most file managers do — it usually shares it in a way that gives no permission to delete it, and you will get a message saying so. Deleting it from that file manager is the way around it.</string>
     <string name="help_source_title">Changing the installation source</string>
-    <string name="help_source_body">Needs Shizuku or Root; on Package Installer the setting is ignored. It changes the installer this app is recorded under, which is what most app-info screens show. It cannot change who started the install, and it does not make the Play Store treat an app as installed from Play.</string>
+    <string name="help_source_body">Needs Shizuku, Porter, or Root; on Package Installer the setting is ignored. It changes the installer this app is recorded under, which is what most app-info screens show. It cannot change who started the install, and it does not make the Play Store treat an app as installed from Play.</string>
     <string name="setting_section_about">About</string>
     <string name="setting_about_app_name" translatable="false">Universal Installer</string>
     <string name="setting_github_title" translatable="false">GitHub</string>
@@ -206,7 +206,7 @@
     <string name="diagnostics_cancel">Cancel</string>
     <string name="setting_section_install_options">Install options</string>
     <string name="setting_install_options_subtitle">Privileged flags, downgrade, permissions, install source</string>
-    <string name="setting_install_options_unprivileged_note">Advanced flags require Shizuku, Root, or Dhizuku mode to be enabled.</string>
+    <string name="setting_install_options_unprivileged_note">Advanced flags require Shizuku, Porter, Root, or Dhizuku mode to be enabled.</string>
     <string name="setting_install_options_dhizuku_note">Dhizuku only supports &quot;Allow downgrade&quot;. The rest apply when you switch back to Shizuku or Root.</string>
     <string name="setting_blacklist_title">Blocked packages</string>
     <string name="setting_blacklist_subtitle">Packages that will never be installed. Useful for apps that keep reinstalling themselves.</string>
@@ -215,7 +215,7 @@
     <string name="setting_blacklist_remove">Unblock</string>
     <string name="setting_blacklist_count">%1$d blocked</string>
     <string name="setting_auto_approve_title">Auto-approve from selected apps</string>
-    <string name="setting_auto_approve_subtitle">Install requests from chosen apps proceed automatically via Shizuku or Root without confirmation prompts</string>
+    <string name="setting_auto_approve_subtitle">Install requests from chosen apps proceed automatically via Shizuku, Porter, or Root without confirmation prompts</string>
     <string name="setting_auto_approve_apps_title">Approved applications</string>
     <string name="setting_auto_approve_count">%1$d approved</string>
     <string name="setting_auto_approve_none">None selected</string>
@@ -224,7 +224,7 @@
     <string name="setting_auto_approve_search_hint">Search installed apps…</string>
     <string name="setting_auto_approve_preset_header">Popular sources</string>
     <string name="setting_auto_approve_all_apps_header">Installed applications</string>
-    <string name="setting_auto_approve_notice">Silent auto-installation requires Root, Shizuku, or Dhizuku. Packages carrying safety risks (such as downgrades or signature conflicts) will still ask for manual confirmation.</string>
+    <string name="setting_auto_approve_notice">Silent auto-installation requires Root, Shizuku, Porter, or Dhizuku. Packages carrying safety risks (such as downgrades or signature conflicts) will still ask for manual confirmation.</string>
     <string name="setting_auto_approve_add_custom">Add custom package name</string>
     <string name="setting_auto_approve_custom_dialog_title">Add application</string>
     <string name="setting_auto_approve_custom_dialog_hint">e.g. org.fdroid.fdroid</string>
