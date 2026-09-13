@@ -342,8 +342,7 @@ class SettingPrivilegeDelegate(
         }
     }
 
-    /** Enables or disables root-based installation. */
-fun setUseRoot(enabled: Boolean) {
+    fun setUseRoot(enabled: Boolean) {
         scope.launch {
             if (enabled) {
                 val state = backendFactory.requestRoot()
@@ -363,15 +362,13 @@ fun setUseRoot(enabled: Boolean) {
         }
     }
 
-    /** Retries initialization of the root installer backend. */
-fun retryRoot() {
+    fun retryRoot() {
         scope.launch {
             _rootState.value = RootState.UNKNOWN
         }
     }
 
-    /** Enables or disables Dhizuku-based installation. */
-fun setUseDhizuku(enabled: Boolean) {
+    fun setUseDhizuku(enabled: Boolean) {
         if (!enabled) {
             scope.launch {
                 dataStore.edit { prefs -> prefs[PreferencesKeys.USE_DHIZUKU] = false }
@@ -393,6 +390,7 @@ fun setUseDhizuku(enabled: Boolean) {
         }
     }
 
+    /** Commits Dhizuku as the active installation backend. */
     private fun commitDhizukuMode() = scope.launch {
         dataStore.edit { p ->
             p[PreferencesKeys.USE_SHIZUKU] = false
@@ -403,14 +401,14 @@ fun setUseDhizuku(enabled: Boolean) {
         }
     }
 
+    /** Stores the custom authorizer command used for installation. */
     fun setCustomAuthorizerCommand(command: String) = scope.launch {
         dataStore.edit { p ->
             p[PreferencesKeys.CUSTOM_AUTHORIZER_COMMAND] = command
         }
     }
 
-    /** Refreshes the current Dhizuku availability state. */
-fun refreshDhizukuState() {
+    fun refreshDhizukuState() {
         scope.launch(Dispatchers.IO) {
             val state = if (useDhizuku.value) {
                 DhizukuCompat.state(application)
@@ -421,8 +419,7 @@ fun refreshDhizukuState() {
         }
     }
 
-    /** Updates an installation privilege option. */
-fun setPrivilegedOption(option: SettingViewModel.PrivilegedOption, enabled: Boolean) {
+    fun setPrivilegedOption(option: SettingViewModel.PrivilegedOption, enabled: Boolean) {
         scope.launch {
             dataStore.edit { p ->
                 p[option.shizukuKey] = enabled
@@ -432,6 +429,7 @@ fun setPrivilegedOption(option: SettingViewModel.PrivilegedOption, enabled: Bool
         }
     }
 
+    /** Sets the package name used by privileged installer operations. */
     fun setInstallerPackageName(packageName: String) {
         scope.launch {
             dataStore.edit { p ->
@@ -441,6 +439,7 @@ fun setPrivilegedOption(option: SettingViewModel.PrivilegedOption, enabled: Bool
         }
     }
 
+    /** Enables or disables the app as the default package installer. */
     fun toggleDefaultInstaller(enabled: Boolean) {
         updateShizukuState()
         val shizukuReady = _shizukuState.value == ShizukuState.READY
