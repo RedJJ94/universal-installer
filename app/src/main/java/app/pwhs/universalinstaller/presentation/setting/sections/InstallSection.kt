@@ -45,6 +45,9 @@ import app.pwhs.universalinstaller.presentation.setting.components.SearchableIte
 import app.pwhs.universalinstaller.presentation.setting.components.SwitchPreference
 import app.pwhs.universalinstaller.presentation.setting.components.matchesQuery
 
+/**
+ * Adds the installation-related settings to the settings list.
+ */
 internal fun LazyListScope.InstallSection(
     q: String,
     installLabels: List<String>,
