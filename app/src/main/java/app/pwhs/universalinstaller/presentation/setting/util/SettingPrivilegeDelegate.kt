@@ -305,13 +305,13 @@ class SettingPrivilegeDelegate(
             }
             ShizukuState.NO_PERMISSION -> requestShizukuPermission()
             ShizukuState.NOT_RUNNING -> emitEvent(
-                if (privilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
+                if (activePrivilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
                     R.string.setting_porter_start_service_hint
                 else
                     R.string.setting_shizuku_start_service_hint
             )
             ShizukuState.NOT_INSTALLED -> emitEvent(
-                if (privilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
+                if (activePrivilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
                     R.string.setting_porter_install_hint
                 else
                     R.string.setting_shizuku_install_hint
@@ -326,7 +326,7 @@ class SettingPrivilegeDelegate(
         } catch (t: Throwable) {
             Timber.w(t, "Shizuku.requestPermission threw")
             emitEvent(
-                if (privilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
+                if (activePrivilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
                     R.string.setting_porter_start_service_hint
                 else
                     R.string.setting_shizuku_start_service_hint
