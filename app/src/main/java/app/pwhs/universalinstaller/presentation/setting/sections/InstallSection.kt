@@ -3,15 +3,23 @@ package app.pwhs.universalinstaller.presentation.setting.sections
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material.icons.rounded.SettingsApplications
 import androidx.compose.material.icons.rounded.Wallpaper
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -26,6 +34,7 @@ import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.util.DhizukuCompat
 import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.presentation.setting.InstallMode
+import app.pwhs.universalinstaller.presentation.setting.PrivilegedServiceBackend
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.setting.SettingUiState
 import app.pwhs.universalinstaller.presentation.setting.ShizukuState
@@ -44,6 +53,7 @@ internal fun LazyListScope.InstallSection(
     useDhizuku: Boolean,
     context: Context,
     onInstallModeChanged: (InstallMode) -> Unit,
+    onPrivilegedServiceBackendChanged: (PrivilegedServiceBackend) -> Unit = {},
     onUseDhizukuChanged: (Boolean) -> Unit,
     onRootRetry: () -> Unit,
     onDeleteApkChanged: (Boolean) -> Unit,
@@ -76,6 +86,76 @@ internal fun LazyListScope.InstallSection(
                     microGSupported = app.pwhs.universalinstaller.util.MicroGCompat.isAvailable(context),
                     onModeChange = onInstallModeChanged,
                 )
+                if (currentMode == InstallMode.SHIZUKU) {
+                    var showBackendDialog by rememberSaveable { mutableStateOf(false) }
+                    ListItem(
+                        headlineContent = {
+                            Text(
+                                stringResource(R.string.setting_privileged_service_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        },
+                        supportingContent = {
+                            val selected = stringResource(uiState.privilegedServiceBackend.labelKey)
+                            val active = stringResource(uiState.activePrivilegedServiceBackend.labelKey)
+                            Text(
+                                stringResource(
+                                    R.string.setting_privileged_service_subtitle,
+                                    selected,
+                                    active,
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        trailingContent = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        modifier = Modifier.clickable { showBackendDialog = true },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    )
+                    if (showBackendDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showBackendDialog = false },
+                            title = { Text(stringResource(R.string.setting_privileged_service_title)) },
+                            text = {
+                                Column {
+                                    PrivilegedServiceBackend.entries.forEach { backend ->
+                                        ListItem(
+                                            headlineContent = {
+                                                Text(
+                                                    stringResource(backend.labelKey),
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                )
+                                            },
+                                            trailingContent = {
+                                                RadioButton(
+                                                    selected = uiState.privilegedServiceBackend == backend,
+                                                    onClick = null,
+                                                )
+                                            },
+                                            modifier = Modifier.clickable {
+                                                showBackendDialog = false
+                                                onPrivilegedServiceBackendChanged(backend)
+                                            },
+                                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                                        )
+                                    }
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(onClick = { showBackendDialog = false }) {
+                                    Text(stringResource(android.R.string.cancel))
+                                }
+                            },
+                        )
+                    }
+                }
+
                 if (currentMode == InstallMode.CUSTOM) {
                     CustomAuthorizerCard(
                         command = uiState.customAuthorizerCommand,
@@ -96,7 +176,7 @@ internal fun LazyListScope.InstallSection(
             SearchableItem(
                 q,
                 stringResource(R.string.setting_section_install_options),
-                "shizuku root dhizuku downgrade replace permission test bypass source rollback uninstall",
+                "shizuku porter privileged service root dhizuku downgrade replace permission test bypass source rollback uninstall",
             ) {
                 ListItem(
                     headlineContent = {
