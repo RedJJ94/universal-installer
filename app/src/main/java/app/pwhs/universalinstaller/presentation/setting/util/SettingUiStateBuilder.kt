@@ -17,6 +17,7 @@ import app.pwhs.universalinstaller.util.BiometricGate
 
 object SettingUiStateBuilder {
 
+    /** Builds the immutable settings UI state from the combined preference flows. */
     fun build(
         application: Application,
         backendFactory: InstallerBackendFactory,
