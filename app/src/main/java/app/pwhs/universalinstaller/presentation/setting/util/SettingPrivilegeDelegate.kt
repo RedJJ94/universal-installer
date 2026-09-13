@@ -112,6 +112,7 @@ class SettingPrivilegeDelegate(
             }
         }
 
+    /** Returns the backend that is active for the current process. */
     private fun readActivePrivilegedServiceBackend(): PrivilegedServiceBackend = try {
         when (PorterClient.getActiveBackend(application)) {
             PorterClient.Backend.PORTER -> PrivilegedServiceBackend.PORTER
@@ -123,6 +124,7 @@ class SettingPrivilegeDelegate(
         PrivilegedServiceBackend.AUTO
     }
 
+    /** Persists the selected backend and applies it to the next process launch. */
     fun setPrivilegedServiceBackend(backend: PrivilegedServiceBackend) {
         scope.launch(Dispatchers.IO) {
             val selected = when (backend) {
@@ -180,6 +182,7 @@ class SettingPrivilegeDelegate(
         Shizuku.removeRequestPermissionResultListener(requestPermissionResultListener)
     }
 
+    /** Refreshes the privileged-service availability state exposed to the settings UI. */
     fun updateShizukuState() {
         val selectedBackend = try {
             PorterClient.getActiveBackend(application)
@@ -213,12 +216,14 @@ class SettingPrivilegeDelegate(
         }
     }
 
+    /** Returns the telemetry identifier for the active privileged-service backend. */
     private fun activeBackendTelemetryName(): String = when (PorterClient.getActiveBackend(application)) {
         PorterClient.Backend.PORTER -> app.pwhs.core.telemetry.TelemetryEvents.BACKEND_PORTER
         PorterClient.Backend.SHIZUKU -> app.pwhs.core.telemetry.TelemetryEvents.BACKEND_SHIZUKU
         PorterClient.Backend.AUTO -> app.pwhs.core.telemetry.TelemetryEvents.BACKEND_AUTO
     }
 
+    /** Returns whether an application package is installed on the device. */
     private fun isPackageInstalled(packageName: String): Boolean = try {
         application.packageManager.getApplicationInfo(packageName, 0)
         true
@@ -226,6 +231,7 @@ class SettingPrivilegeDelegate(
         false
     }
 
+    /** Applies the selected installer mode and updates the related privilege state. */
     fun setInstallMode(mode: InstallMode) {
         when (mode) {
             InstallMode.DEFAULT -> scope.launch {
@@ -285,6 +291,7 @@ class SettingPrivilegeDelegate(
         }
     }
 
+    /** Enables or disables Shizuku-based installation. */
     fun setUseShizuku(enabled: Boolean) {
         if (!enabled) {
             scope.launch {
@@ -320,6 +327,7 @@ class SettingPrivilegeDelegate(
         }
     }
 
+    /** Requests Shizuku permission and reports the resulting state to the UI. */
     private fun requestShizukuPermission() {
         try {
             Shizuku.requestPermission(SHIZUKU_PERMISSION_REQ_CODE)
