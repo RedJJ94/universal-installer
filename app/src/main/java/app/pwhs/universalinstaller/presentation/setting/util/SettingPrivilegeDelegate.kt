@@ -342,7 +342,8 @@ class SettingPrivilegeDelegate(
         }
     }
 
-    fun setUseRoot(enabled: Boolean) {
+    /** Enables or disables root-based installation. */
+fun setUseRoot(enabled: Boolean) {
         scope.launch {
             if (enabled) {
                 val state = backendFactory.requestRoot()
@@ -362,13 +363,15 @@ class SettingPrivilegeDelegate(
         }
     }
 
-    fun retryRoot() {
+    /** Retries initialization of the root installer backend. */
+fun retryRoot() {
         scope.launch {
             _rootState.value = RootState.UNKNOWN
         }
     }
 
-    fun setUseDhizuku(enabled: Boolean) {
+    /** Enables or disables Dhizuku-based installation. */
+fun setUseDhizuku(enabled: Boolean) {
         if (!enabled) {
             scope.launch {
                 dataStore.edit { prefs -> prefs[PreferencesKeys.USE_DHIZUKU] = false }
@@ -406,7 +409,8 @@ class SettingPrivilegeDelegate(
         }
     }
 
-    fun refreshDhizukuState() {
+    /** Refreshes the current Dhizuku availability state. */
+fun refreshDhizukuState() {
         scope.launch(Dispatchers.IO) {
             val state = if (useDhizuku.value) {
                 DhizukuCompat.state(application)
@@ -417,7 +421,8 @@ class SettingPrivilegeDelegate(
         }
     }
 
-    fun setPrivilegedOption(option: SettingViewModel.PrivilegedOption, enabled: Boolean) {
+    /** Updates an installation privilege option. */
+fun setPrivilegedOption(option: SettingViewModel.PrivilegedOption, enabled: Boolean) {
         scope.launch {
             dataStore.edit { p ->
                 p[option.shizukuKey] = enabled
