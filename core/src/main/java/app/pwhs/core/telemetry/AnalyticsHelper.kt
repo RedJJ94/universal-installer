@@ -130,8 +130,7 @@ object AnalyticsHelper {
 
     /** @deprecated Use [logPrivilegedServiceStatusChanged] instead. */
     @Deprecated("Use logPrivilegedServiceStatusChanged")
-    /** @deprecated Use [logPrivilegedServiceStatusChanged] instead. */
-fun logShizukuStatusChanged(status: String) {
+    fun logShizukuStatusChanged(status: String) {
         logPrivilegedServiceStatusChanged(TelemetryEvents.BACKEND_SHIZUKU, status)
     }
 
