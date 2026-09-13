@@ -78,6 +78,9 @@ enum class PrivilegedServiceBackend(val labelKey: Int) {
     SHIZUKU(R.string.setting_privileged_service_shizuku);
 
     companion object {
+        /**
+         * Parses the persisted backend selection, falling back to automatic selection.
+         */
         fun from(stored: String?): PrivilegedServiceBackend =
             entries.firstOrNull { it.name == stored } ?: AUTO
     }
