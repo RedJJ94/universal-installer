@@ -76,6 +76,9 @@ import app.pwhs.universalinstaller.presentation.setting.sections.BackupSection
 import app.pwhs.universalinstaller.presentation.setting.backup.BackupSheetsHost
 import app.pwhs.universalinstaller.presentation.setting.backup.BackupViewModel
 import app.pwhs.universalinstaller.presentation.setting.components.*
+/**
+ * Renders the settings screen and wires setting actions to the view model.
+ */
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
@@ -157,6 +160,9 @@ fun SettingScreen(
     )
 }
 
+/**
+ * Renders the settings content, including the privileged-service selector.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingUi(
