@@ -113,7 +113,7 @@
 
 ---
 
-## Building from Source
+## Building from Source.
 
 ### Prerequisites
 - Android Studio Ladybug or newer
