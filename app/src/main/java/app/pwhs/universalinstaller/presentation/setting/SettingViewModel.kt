@@ -253,8 +253,10 @@ class SettingViewModel(
 
     // ── Privilege Delegates ─────────────────────────────────────────────────
 
+    /** Changes the installer mode used for package installation. */
     fun setInstallMode(mode: InstallMode) = privilegeDelegate.setInstallMode(mode)
     fun setUseShizuku(enabled: Boolean) = privilegeDelegate.setUseShizuku(enabled)
+    /** Selects the privileged service backend for the next process launch. */
     fun setPrivilegedServiceBackend(backend: PrivilegedServiceBackend) = privilegeDelegate.setPrivilegedServiceBackend(backend)
     fun setUseRoot(enabled: Boolean) = privilegeDelegate.setUseRoot(enabled)
     fun retryRoot() = privilegeDelegate.retryRoot()
