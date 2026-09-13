@@ -10,6 +10,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.setting.InstallMode
+import app.pwhs.universalinstaller.presentation.setting.PrivilegedServiceBackend
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.security.util.SystemInstallerManager
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import eu.darken.porter.client.PorterClient
 import rikka.shizuku.Shizuku
 import timber.log.Timber
 
@@ -42,6 +44,13 @@ class SettingPrivilegeDelegate(
 
     private val _shizukuState = MutableStateFlow(ShizukuState.NOT_INSTALLED)
     val shizukuState: StateFlow<ShizukuState> = _shizukuState.asStateFlow()
+
+    val privilegedServiceBackend: StateFlow<PrivilegedServiceBackend> = dataStore.data
+        .map { PrivilegedServiceBackend.from(it[PreferencesKeys.PRIVILEGED_SERVICE_BACKEND]) }
+        .stateIn(scope, SharingStarted.Eagerly, PrivilegedServiceBackend.AUTO)
+
+    val activePrivilegedServiceBackend: StateFlow<PrivilegedServiceBackend> =
+        MutableStateFlow(readActivePrivilegedServiceBackend())
 
     private val _dhizukuState = MutableStateFlow(DhizukuState.NOT_INSTALLED)
     val dhizukuState: StateFlow<DhizukuState> = _dhizukuState.asStateFlow()
@@ -72,13 +81,13 @@ class SettingPrivilegeDelegate(
 
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
         Timber.d("Shizuku binder received")
-        app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_CONNECTED)
+        app.pwhs.core.telemetry.AnalyticsHelper.logPrivilegedServiceStatusChanged(activeBackendTelemetryName(), app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_CONNECTED)
         updateShizukuState()
     }
 
     private val binderDeadListener = Shizuku.OnBinderDeadListener {
         Timber.d("Shizuku binder dead")
-        app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_SERVICE_DEAD)
+        app.pwhs.core.telemetry.AnalyticsHelper.logPrivilegedServiceStatusChanged(activeBackendTelemetryName(), app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_SERVICE_DEAD)
         updateShizukuState()
     }
 
@@ -87,7 +96,7 @@ class SettingPrivilegeDelegate(
             if (requestCode != SHIZUKU_PERMISSION_REQ_CODE) return@OnRequestPermissionResultListener
             updateShizukuState()
             if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_CONNECTED)
+                app.pwhs.core.telemetry.AnalyticsHelper.logPrivilegedServiceStatusChanged(activeBackendTelemetryName(), app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_CONNECTED)
                 scope.launch {
                     dataStore.edit { prefs ->
                         prefs[PreferencesKeys.USE_ROOT] = false
@@ -98,10 +107,43 @@ class SettingPrivilegeDelegate(
                     }
                 }
             } else {
-                app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_PERMISSION_DENIED)
+                app.pwhs.core.telemetry.AnalyticsHelper.logPrivilegedServiceStatusChanged(activeBackendTelemetryName(), app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_PERMISSION_DENIED)
                 emitEvent(R.string.setting_shizuku_permission_denied)
             }
         }
+
+    private fun readActivePrivilegedServiceBackend(): PrivilegedServiceBackend = try {
+        when (PorterClient.getActiveBackend(application)) {
+            PorterClient.Backend.PORTER -> PrivilegedServiceBackend.PORTER
+            PorterClient.Backend.SHIZUKU -> PrivilegedServiceBackend.SHIZUKU
+            PorterClient.Backend.AUTO -> PrivilegedServiceBackend.AUTO
+        }
+    } catch (t: Throwable) {
+        Timber.w(t, "Unable to determine active Porter backend")
+        PrivilegedServiceBackend.AUTO
+    }
+
+    fun setPrivilegedServiceBackend(backend: PrivilegedServiceBackend) {
+        scope.launch(Dispatchers.IO) {
+            val selected = when (backend) {
+                PrivilegedServiceBackend.AUTO -> PorterClient.Backend.AUTO
+                PrivilegedServiceBackend.PORTER -> PorterClient.Backend.PORTER
+                PrivilegedServiceBackend.SHIZUKU -> PorterClient.Backend.SHIZUKU
+            }
+            try {
+                val saved = PorterClient.setBackendForNextProcess(application, selected)
+                if (saved) {
+                    dataStore.edit { it[PreferencesKeys.PRIVILEGED_SERVICE_BACKEND] = backend.name }
+                    emitEvent(R.string.setting_privileged_service_restart_required)
+                } else {
+                    emitEvent(R.string.setting_privileged_service_save_failed)
+                }
+            } catch (t: Throwable) {
+                Timber.w(t, "Unable to save privileged service backend")
+                emitEvent(R.string.setting_privileged_service_save_failed)
+            }
+        }
+    }
 
     init {
         updateShizukuState()
@@ -139,12 +181,49 @@ class SettingPrivilegeDelegate(
     }
 
     fun updateShizukuState() {
+        val selectedBackend = try {
+            PorterClient.getActiveBackend(application)
+        } catch (_: Throwable) {
+            PorterClient.Backend.AUTO
+        }
+
+        val managerInstalled = when (selectedBackend) {
+            PorterClient.Backend.PORTER -> try {
+                PorterClient.getPorterPackage(application) != null
+            } catch (_: Throwable) {
+                false
+            }
+            PorterClient.Backend.SHIZUKU -> isPackageInstalled("moe.shizuku.privileged.api")
+            PorterClient.Backend.AUTO -> {
+                val porterInstalled = try {
+                    PorterClient.getPorterPackage(application) != null
+                } catch (_: Throwable) {
+                    false
+                }
+                porterInstalled || isPackageInstalled("moe.shizuku.privileged.api")
+            }
+        }
+
         _shizukuState.value = when {
+            !managerInstalled -> ShizukuState.NOT_INSTALLED
             !Shizuku.pingBinder() -> ShizukuState.NOT_RUNNING
             Shizuku.getVersion() < 11 -> ShizukuState.UNSUPPORTED
             Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED -> ShizukuState.NO_PERMISSION
             else -> ShizukuState.READY
         }
+    }
+
+    private fun activeBackendTelemetryName(): String = when (PorterClient.getActiveBackend(application)) {
+        PorterClient.Backend.PORTER -> app.pwhs.core.telemetry.TelemetryEvents.BACKEND_PORTER
+        PorterClient.Backend.SHIZUKU -> app.pwhs.core.telemetry.TelemetryEvents.BACKEND_SHIZUKU
+        PorterClient.Backend.AUTO -> app.pwhs.core.telemetry.TelemetryEvents.BACKEND_AUTO
+    }
+
+    private fun isPackageInstalled(packageName: String): Boolean = try {
+        application.packageManager.getApplicationInfo(packageName, 0)
+        true
+    } catch (_: PackageManager.NameNotFoundException) {
+        false
     }
 
     fun setInstallMode(mode: InstallMode) {
@@ -225,8 +304,18 @@ class SettingPrivilegeDelegate(
                 }
             }
             ShizukuState.NO_PERMISSION -> requestShizukuPermission()
-            ShizukuState.NOT_RUNNING -> emitEvent(R.string.setting_shizuku_start_service_hint)
-            ShizukuState.NOT_INSTALLED -> emitEvent(R.string.setting_shizuku_install_hint)
+            ShizukuState.NOT_RUNNING -> emitEvent(
+                if (privilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
+                    R.string.setting_porter_start_service_hint
+                else
+                    R.string.setting_shizuku_start_service_hint
+            )
+            ShizukuState.NOT_INSTALLED -> emitEvent(
+                if (privilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
+                    R.string.setting_porter_install_hint
+                else
+                    R.string.setting_shizuku_install_hint
+            )
             ShizukuState.UNSUPPORTED -> emitEvent(R.string.setting_shizuku_unsupported)
         }
     }
@@ -236,7 +325,12 @@ class SettingPrivilegeDelegate(
             Shizuku.requestPermission(SHIZUKU_PERMISSION_REQ_CODE)
         } catch (t: Throwable) {
             Timber.w(t, "Shizuku.requestPermission threw")
-            emitEvent(R.string.setting_shizuku_start_service_hint)
+            emitEvent(
+                if (privilegedServiceBackend.value == PrivilegedServiceBackend.PORTER)
+                    R.string.setting_porter_start_service_hint
+                else
+                    R.string.setting_shizuku_start_service_hint
+            )
         }
     }
 
