@@ -111,6 +111,7 @@ object AnalyticsHelper {
         )
     }
 
+    /** Records an action involving the default installer role. */
     fun logDefaultInstallerAction(action: String) {
         Telemetry.event(
             TelemetryEvents.EVENT_DEFAULT_INSTALLER_ACTION,
@@ -118,6 +119,7 @@ object AnalyticsHelper {
         )
     }
 
+    /** Records a status change for the selected privileged-service backend. */
     fun logPrivilegedServiceStatusChanged(backend: String, status: String) {
         Telemetry.event(
             TelemetryEvents.EVENT_PRIVILEGED_SERVICE_STATUS_CHANGED,
@@ -133,6 +135,7 @@ object AnalyticsHelper {
     }
 
     // ── Giai đoạn 4: Đánh giá & Giữ chân ──────────────────────────────────
+    /** Records that the in-app review prompt was triggered. */
     fun logReviewPromptTriggered(triggerReason: String, totalSuccessfulInstalls: Int) {
         Telemetry.event(
             TelemetryEvents.EVENT_REVIEW_PROMPT_TRIGGERED,
