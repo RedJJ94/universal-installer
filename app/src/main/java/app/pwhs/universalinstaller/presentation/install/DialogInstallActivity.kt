@@ -34,6 +34,7 @@ import app.pwhs.core.util.PermissionMonitor
 import app.pwhs.universalinstaller.IntentHandoff
 import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.domain.model.InstallUiStyle
+import app.pwhs.universalinstaller.presentation.install.dialog.detectInstallRisks
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallUriHelper
 import app.pwhs.universalinstaller.presentation.install.dialog.InsufficientStorageDialog
@@ -321,12 +322,18 @@ class DialogInstallActivity : FragmentActivity() {
                 }
             }
 
-            LaunchedEffect(uiState.dialogStage, autoConfirmExternalInstall, isCallerAutoApproved, autoOpenAfterInstall) {
-                val shouldAutoInstall = (autoConfirmExternalInstall || isCallerAutoApproved) && !securityGate.isPinRequired
+            LaunchedEffect(uiState.dialogStage, autoConfirmExternalInstall, isCallerAutoApproved, autoOpenAfterInstall, uiState.pendingApkInfo) {
+                val apkInfo = uiState.pendingApkInfo
+                val risks = if (apkInfo != null) detectInstallRisks(apkInfo, strictVirusTotalCheck) else emptyList()
+                val hasSecurityFlags = risks.isNotEmpty() || (apkInfo?.vtResult?.let { it.malicious > 0 || it.suspicious > 0 } == true)
+                val shouldAutoInstall = (autoConfirmExternalInstall || isCallerAutoApproved) && !securityGate.isPinRequired && !hasSecurityFlags
+                if (hasSecurityFlags && (autoConfirmExternalInstall || isCallerAutoApproved)) {
+                    Timber.w("Auto-approve install blocked: security risks/VT flags present ($risks, vt=${apkInfo?.vtResult?.status})")
+                }
                 if (uiState.dialogStage == DialogStage.Prepare && shouldAutoInstall) {
                     Timber.i("Auto-approving install: autoConfirm=$autoConfirmExternalInstall, callerApproved=$isCallerAutoApproved (caller=$callerPackage)")
                     proceedInstall()
-                } else if (uiState.dialogStage == DialogStage.Success && shouldAutoInstall) {
+                } else if (uiState.dialogStage == DialogStage.Success && (autoConfirmExternalInstall || isCallerAutoApproved) && !securityGate.isPinRequired) {
                     if (autoOpenAfterInstall) {
                         dialogTarget?.packageName?.takeIf { it.isNotBlank() }?.let { pkg ->
                             viewModel.getAppLaunchIntent(pkg)?.let { intent ->

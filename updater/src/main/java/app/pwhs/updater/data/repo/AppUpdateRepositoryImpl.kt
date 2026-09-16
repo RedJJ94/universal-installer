@@ -1,6 +1,8 @@
 package app.pwhs.updater.data.repo
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import app.pwhs.updater.data.local.TrackedAppDao
 import app.pwhs.updater.data.local.TrackedAppEntity
 import app.pwhs.updater.domain.matcher.InstalledAppMatcher
@@ -24,25 +26,82 @@ class AppUpdateRepositoryImpl(
     private val providers: List<UpdateSourceProvider> = listOf(GitHubReleaseProvider()),
 ) : AppUpdateRepository {
 
+    private fun getInstalledAppLabel(packageName: String): String? {
+        return runCatching {
+            val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getApplicationInfo(packageName, 0)
+            }
+            context.packageManager.getApplicationLabel(info).toString()
+        }.getOrNull()
+    }
+
     override fun getAllTrackedApps(): Flow<List<TrackedApp>> {
         return dao.getAllTrackedApps().map { list ->
             list.map { entity ->
                 val domain = entity.toDomain()
                 val installedVer = InstalledAppMatcher.getInstalledVersion(context.packageManager, domain.packageName)
-                if (installedVer != null && (installedVer.first != domain.currentVersionName || installedVer.second != domain.currentVersionCode)) {
-                    domain.copy(
-                        currentVersionName = installedVer.first,
-                        currentVersionCode = installedVer.second,
-                    )
+                if (installedVer != null) {
+                    val realLabel = getInstalledAppLabel(domain.packageName)
+                    val effectiveName = if (!realLabel.isNullOrBlank()) realLabel else domain.appName
+                    if (installedVer.first != domain.currentVersionName ||
+                        installedVer.second != domain.currentVersionCode ||
+                        effectiveName != domain.appName
+                    ) {
+                        domain.copy(
+                            currentVersionName = installedVer.first,
+                            currentVersionCode = installedVer.second,
+                            appName = effectiveName,
+                        )
+                    } else {
+                        domain
+                    }
                 } else {
-                    domain
+                    if (domain.currentVersionName != "Not Installed" || domain.currentVersionCode != 0L) {
+                        domain.copy(
+                            currentVersionName = "Not Installed",
+                            currentVersionCode = 0L,
+                        )
+                    } else {
+                        domain
+                    }
                 }
             }
         }
     }
 
     override fun getTrackedApp(packageName: String): Flow<TrackedApp?> {
-        return dao.getByPackageNameFlow(packageName).map { it?.toDomain() }
+        return dao.getByPackageNameFlow(packageName).map { entity ->
+            val domain = entity?.toDomain() ?: return@map null
+            val installedVer = InstalledAppMatcher.getInstalledVersion(context.packageManager, domain.packageName)
+            if (installedVer != null) {
+                val realLabel = getInstalledAppLabel(domain.packageName)
+                val effectiveName = if (!realLabel.isNullOrBlank()) realLabel else domain.appName
+                if (installedVer.first != domain.currentVersionName ||
+                    installedVer.second != domain.currentVersionCode ||
+                    effectiveName != domain.appName
+                ) {
+                    domain.copy(
+                        currentVersionName = installedVer.first,
+                        currentVersionCode = installedVer.second,
+                        appName = effectiveName,
+                    )
+                } else {
+                    domain
+                }
+            } else {
+                if (domain.currentVersionName != "Not Installed" || domain.currentVersionCode != 0L) {
+                    domain.copy(
+                        currentVersionName = "Not Installed",
+                        currentVersionCode = 0L,
+                    )
+                } else {
+                    domain
+                }
+            }
+        }
     }
 
     override fun getUpdateCount(): Flow<Int> {
@@ -69,7 +128,10 @@ class AppUpdateRepositoryImpl(
                 currentVersionCode = installedVer.second,
             )
         } else {
-            normalizedApp
+            normalizedApp.copy(
+                currentVersionName = "Not Installed",
+                currentVersionCode = 0L,
+            )
         }
         dao.insertOrUpdate(TrackedAppEntity.fromDomain(toSave))
     }
@@ -87,10 +149,15 @@ class AppUpdateRepositoryImpl(
 
         var currentApp = entity.toDomain()
         val installedVer = InstalledAppMatcher.getInstalledVersion(context.packageManager, currentApp.packageName)
-        if (installedVer != null) {
-            currentApp = currentApp.copy(
+        currentApp = if (installedVer != null) {
+            currentApp.copy(
                 currentVersionName = installedVer.first,
                 currentVersionCode = installedVer.second,
+            )
+        } else {
+            currentApp.copy(
+                currentVersionName = "Not Installed",
+                currentVersionCode = 0L,
             )
         }
 
@@ -163,5 +230,58 @@ class AppUpdateRepositoryImpl(
                 checkForUpdate(entity.packageName, apiToken).getOrNull() ?: entity.toDomain()
             }
         }.awaitAll()
+    }
+
+    override suspend fun syncInstalledVersions() = withContext(Dispatchers.IO) {
+        val entities = dao.getAllTrackedApps().firstOrNull() ?: return@withContext
+        for (entity in entities) {
+            var currentEntity = entity
+            // 1. If entity has synthetic package name, try to resolve to real installed app
+            if (currentEntity.packageName.startsWith("tracked.")) {
+                val match = InstalledAppMatcher.findMatch(
+                    pm = context.packageManager,
+                    repoUrl = currentEntity.sourceUrl,
+                    candidateName = currentEntity.appName,
+                )
+                if (match != null) {
+                    dao.deleteByPackageName(currentEntity.packageName)
+                    currentEntity = currentEntity.copy(
+                        packageName = match.packageName,
+                        appName = match.appName,
+                        currentVersionName = match.versionName,
+                        currentVersionCode = match.versionCode,
+                    )
+                    dao.insertOrUpdate(currentEntity)
+                    continue
+                }
+            }
+
+            val installedVer = InstalledAppMatcher.getInstalledVersion(context.packageManager, currentEntity.packageName)
+            if (installedVer != null) {
+                val realLabel = getInstalledAppLabel(currentEntity.packageName)
+                val effectiveName = if (!realLabel.isNullOrBlank()) realLabel else currentEntity.appName
+                if (installedVer.first != currentEntity.currentVersionName ||
+                    installedVer.second != currentEntity.currentVersionCode ||
+                    effectiveName != currentEntity.appName
+                ) {
+                    dao.update(
+                        currentEntity.copy(
+                            currentVersionName = installedVer.first,
+                            currentVersionCode = installedVer.second,
+                            appName = effectiveName,
+                        )
+                    )
+                }
+            } else {
+                if (currentEntity.currentVersionName != "Not Installed" || currentEntity.currentVersionCode != 0L) {
+                    dao.update(
+                        currentEntity.copy(
+                            currentVersionName = "Not Installed",
+                            currentVersionCode = 0L,
+                        )
+                    )
+                }
+            }
+        }
     }
 }

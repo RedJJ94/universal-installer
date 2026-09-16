@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">बैकअप सामग्री मिली</string>
     <string name="backup_restore_items_to_restore">पुनर्स्थापित करने के लिए आइटम चुनें:</string>
     <string name="backup_restore_action">अभी पुनर्स्थापित करें</string>
+    <string name="backup_include_obb_title">OBB और मीडिया डेटा शामिल करें</string>
+    <string name="backup_include_obb_desc">/Android/obb विस्तार फ़ाइलों को .xapk बैकअप में संग्रहीत करें</string>
 </resources>

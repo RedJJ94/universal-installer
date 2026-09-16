@@ -73,6 +73,7 @@ import androidx.core.content.FileProvider
 import app.pwhs.universalinstaller.BuildConfig
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
+import app.pwhs.universalinstaller.presentation.manage.components.BackupsSettingsSheet
 import app.pwhs.core.ui.ApkFileIconData
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
@@ -203,160 +204,15 @@ fun BackupsScreen(
     }
 
     if (showSettings) {
-        ModalBottomSheet(
-            onDismissRequest = { showSettings = false },
+        BackupsSettingsSheet(
+            uiState = uiState,
             sheetState = sheetState,
-            dragHandle = null,
-            contentWindowInsets = { WindowInsets(0, 0, 0, 0) }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp)
-                    .padding(bottom = navBarPadding + 16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                Text(
-                    text = "Extraction Settings",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-
-                SettingsSection(
-                    title = "APK Extractor",
-                    icon = Icons.Rounded.Folder
-                ) {
-                    var showDirPicker by remember { mutableStateOf(false) }
-                    if (showDirPicker) {
-                        DirectoryPickerDialog(
-                            onPick = { path ->
-                                viewModel.setExtractorOutputPath(path)
-                                showDirPicker = false
-                            },
-                            onDismiss = { showDirPicker = false },
-                        )
-                    }
-                    val folderPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-                        androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree()
-                    ) { uri ->
-                        uri?.let { viewModel.setExtractorOutputPath(it.toString()) }
-                    }
-
-                    val safeLaunchFolderPicker = {
-                        val launched = runCatching {
-                            folderPickerLauncher.launch(null)
-                        }.isSuccess
-                        if (!launched) {
-                            android.widget.Toast.makeText(
-                                context,
-                                context.getString(R.string.error_no_file_picker),
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-
-                    val currentPath = uiState.extractorOutputPath
-                    val displayPath = formatExtractorOutputPath(context, currentPath)
-
-                    OutlinedTextField(
-                        value = displayPath,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.backup_output_path)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .clickable { safeLaunchFolderPicker() },
-                        leadingIcon = { Icon(Icons.Rounded.Folder, null) },
-                        trailingIcon = {
-                            IconButton(onClick = { safeLaunchFolderPicker() }) {
-                                Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
-                            }
-                        },
-                        enabled = true,
-                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-                            .also { interactionSource ->
-                                LaunchedEffect(interactionSource) {
-                                    interactionSource.interactions.collect {
-                                        if (it is androidx.compose.foundation.interaction.PressInteraction.Release) {
-                                            safeLaunchFolderPicker()
-                                        }
-                                    }
-                                }
-                            }
-                    )
-
-                    // SAF (above) blocks folders like Download; this built-in browser reaches
-                    // them via the File API (needs All-files access). See #78.
-                    TextButton(
-                        onClick = { showDirPicker = true },
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    ) {
-                        Icon(
-                            Icons.Rounded.Folder,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.size(8.dp))
-                        Text(stringResource(R.string.dir_picker_browse_action))
-                    }
-
-                    // Drive the field from LOCAL state, not directly from uiState. Persisting
-                    // each keystroke through DataStore and reading the value back is async, so
-                    // binding `value` to the flow made the caret jump to the end mid-edit.
-                    // Local state updates synchronously (caret stays put); DataStore is just a sink.
-                    var templateField by remember {
-                        mutableStateOf(
-                            androidx.compose.ui.text.input.TextFieldValue(uiState.extractorFilenameTemplate)
-                        )
-                    }
-                    OutlinedTextField(
-                        value = templateField,
-                        onValueChange = {
-                            templateField = it
-                            viewModel.setExtractorFilenameTemplate(it.text)
-                        },
-                        label = { Text(stringResource(R.string.backup_filename_template)) },
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                        leadingIcon = { Icon(Icons.Rounded.DriveFileRenameOutline, null) },
-                        placeholder = { Text("{name}-{version}") },
-                        supportingText = { Text(stringResource(R.string.backup_tags_hint)) },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
-                    )
-
-                    // Split-app output container. Single-APK apps are always saved as .apk;
-                    // this only affects apps that ship split APKs (.apks vs .xapk).
-                    Text(
-                        text = stringResource(R.string.backup_split_format_label),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        listOf("apks" to "APKS", "xapk" to "XAPK").forEach { (value, label) ->
-                            androidx.compose.material3.FilterChip(
-                                selected = uiState.extractorSplitFormat == value,
-                                onClick = { viewModel.setExtractorSplitFormat(value) },
-                                label = { Text(label) },
-                            )
-                        }
-                    }
-                }
-
-                TextButton(
-                    onClick = { showSettings = false },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text(stringResource(R.string.dialog_success_done))
-                }
-            }
-        }
+            onDismiss = { showSettings = false },
+            onSetOutputPath = viewModel::setExtractorOutputPath,
+            onSetFilenameTemplate = viewModel::setExtractorFilenameTemplate,
+            onSetSplitFormat = viewModel::setExtractorSplitFormat,
+            onSetIncludeObb = viewModel::setExtractorIncludeObb,
+        )
     }
 
     if (pendingDeleteAll) {

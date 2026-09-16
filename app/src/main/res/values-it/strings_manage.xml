@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">Contenuto del backup trovato</string>
     <string name="backup_restore_items_to_restore">Seleziona gli elementi da ripristinare:</string>
     <string name="backup_restore_action">Ripristina ora</string>
+    <string name="backup_include_obb_title">Includi dati OBB e multimediali</string>
+    <string name="backup_include_obb_desc">Archivia i file di espansione /Android/obb nel backup .xapk</string>
 </resources>

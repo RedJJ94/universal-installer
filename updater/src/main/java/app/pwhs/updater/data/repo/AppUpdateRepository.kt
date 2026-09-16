@@ -11,4 +11,5 @@ interface AppUpdateRepository {
     suspend fun removeTrackedApp(packageName: String)
     suspend fun checkForUpdate(packageName: String, apiToken: String? = null): Result<TrackedApp>
     suspend fun checkAllUpdates(apiToken: String? = null): List<TrackedApp>
+    suspend fun syncInstalledVersions()
 }

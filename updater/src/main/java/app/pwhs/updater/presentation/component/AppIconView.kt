@@ -33,15 +33,16 @@ fun AppIconView(
     appName: String,
     iconUrl: String? = null,
     sourceUrl: String? = null,
+    isInstalled: Boolean = false,
     size: Dp = 48.dp,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
 
     // 1. Direct synchronous PackageManager icon bitmap extraction for installed packages
-    val installedBitmap: ImageBitmap? = remember(packageName) {
+    val installedBitmap: ImageBitmap? = remember(packageName, isInstalled) {
         runCatching {
-            if (!packageName.startsWith("tracked.")) {
+            if (isInstalled && !packageName.startsWith("tracked.")) {
                 val drawable = context.packageManager.getApplicationIcon(packageName)
                 drawable.toBitmap(192, 192).asImageBitmap()
             } else {

@@ -9,9 +9,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import app.pwhs.core.ui.component.verticalScrollbar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Label
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -90,6 +94,7 @@ fun TrackedAppCard(
                     appName = app.appName,
                     iconUrl = app.iconUrl,
                     sourceUrl = app.sourceUrl,
+                    isInstalled = app.isInstalled,
                     size = 44.dp,
                 )
                 Spacer(modifier = Modifier.width(Spacing.M))
@@ -280,13 +285,19 @@ fun TrackedAppCard(
                         }
 
                         AnimatedVisibility(visible = expandedNotes) {
-                            Column(modifier = Modifier.padding(top = Spacing.S)) {
+                            val cardNotesScroll = rememberScrollState()
+                            Column(
+                                modifier = Modifier
+                                    .padding(top = Spacing.S)
+                                    .fillMaxWidth()
+                                    .heightIn(max = 200.dp)
+                                    .verticalScroll(cardNotesScroll)
+                                    .verticalScrollbar(cardNotesScroll),
+                            ) {
                                 Text(
                                     text = app.releaseNotes.orEmpty(),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 15,
-                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
                         }

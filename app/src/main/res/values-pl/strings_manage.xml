@@ -188,4 +188,6 @@
     <string name="backup_restore_summary_title">Znaleziono zawartość kopii zapasowej</string>
     <string name="backup_restore_items_to_restore">Wybierz elementy do przywrócenia:</string>
     <string name="backup_restore_action">Przywróć teraz</string>
+    <string name="backup_include_obb_title">Dołącz dane OBB i multimedia</string>
+    <string name="backup_include_obb_desc">Archiwizuj pliki rozszerzeń /Android/obb w kopii zapasowej .xapk</string>
 </resources>

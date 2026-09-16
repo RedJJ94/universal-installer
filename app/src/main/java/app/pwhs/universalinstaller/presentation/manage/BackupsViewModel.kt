@@ -36,6 +36,7 @@ data class BackupsUiState(
     val extractorFilenameTemplate: String = "{name}-{version}",
     /** "apks" (default) or "xapk" — container for apps that have split APKs. */
     val extractorSplitFormat: String = "apks",
+    val extractorIncludeObb: Boolean = false,
 )
 
 class BackupsViewModel(
@@ -46,20 +47,35 @@ class BackupsViewModel(
     private val _filesState = MutableStateFlow<List<BackupFile>>(emptyList())
     private val _isLoading = MutableStateFlow(true)
 
+    private data class ExtractorPrefs(
+        val path: String,
+        val template: String,
+        val splitFormat: String,
+        val includeObb: Boolean,
+    )
+
+    private val _extractorPrefs = dataStore.data.map { prefs ->
+        ExtractorPrefs(
+            path = prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH] ?: "",
+            template = prefs[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE] ?: "{name}-{version}",
+            splitFormat = prefs[PreferencesKeys.APK_EXTRACTOR_SPLIT_FORMAT] ?: "apks",
+            includeObb = prefs[PreferencesKeys.APK_EXTRACTOR_INCLUDE_OBB] ?: false,
+        )
+    }
+
     val uiState: StateFlow<BackupsUiState> = combine(
         _filesState,
         _isLoading,
-        dataStore.data.map { it[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH] ?: "" },
-        dataStore.data.map { it[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE] ?: "{name}-{version}" },
-        dataStore.data.map { it[PreferencesKeys.APK_EXTRACTOR_SPLIT_FORMAT] ?: "apks" }
-    ) { files, loading, path, template, splitFormat ->
+        _extractorPrefs,
+    ) { files, loading, prefs ->
         BackupsUiState(
             files = files,
             totalBytes = files.sumOf { it.sizeBytes },
             isLoading = loading,
-            extractorOutputPath = path,
-            extractorFilenameTemplate = template,
-            extractorSplitFormat = splitFormat,
+            extractorOutputPath = prefs.path,
+            extractorFilenameTemplate = prefs.template,
+            extractorSplitFormat = prefs.splitFormat,
+            extractorIncludeObb = prefs.includeObb,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), BackupsUiState())
 
@@ -121,6 +137,12 @@ class BackupsViewModel(
     fun setExtractorSplitFormat(format: String) {
         viewModelScope.launch {
             dataStore.edit { prefs -> prefs[PreferencesKeys.APK_EXTRACTOR_SPLIT_FORMAT] = format }
+        }
+    }
+
+    fun setExtractorIncludeObb(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { prefs -> prefs[PreferencesKeys.APK_EXTRACTOR_INCLUDE_OBB] = enabled }
         }
     }
 

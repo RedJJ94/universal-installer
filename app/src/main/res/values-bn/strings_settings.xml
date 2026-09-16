@@ -305,4 +305,5 @@
     <string name="setting_backup_export_subtitle">সেটিংস, টোকেন, ট্র্যাক করা অ্যাপ এবং লগ রপ্তানি করুন</string>
     <string name="setting_backup_restore_title">ব্যাকআপ পুনরুদ্ধার করুন</string>
     <string name="setting_backup_restore_subtitle">একটি ব্যাকআপ ফাইল বা Obtainium এক্সপোর্ট থেকে ডেটা পুনরুদ্ধার করুন</string>
+    <string name="setting_install_mode_shizuku">Shizuku</string>
 </resources>

@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">Βρέθηκε περιεχόμενο αντιγράφου ασφαλείας</string>
     <string name="backup_restore_items_to_restore">Επιλέξτε στοιχεία προς επαναφορά:</string>
     <string name="backup_restore_action">Επαναφορά τώρα</string>
+    <string name="backup_include_obb_title">Συμπερίληψη δεδομένων OBB &amp; μέσων</string>
+    <string name="backup_include_obb_desc">Αρχειοθέτηση αρχείων επέκτασης /Android/obb σε αντίγραφο ασφαλείας .xapk</string>
 </resources>

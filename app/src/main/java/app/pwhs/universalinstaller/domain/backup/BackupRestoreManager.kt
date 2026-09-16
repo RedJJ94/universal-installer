@@ -135,6 +135,7 @@ class BackupRestoreManager(
                 apkExtractorOutputPath = prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH],
                 apkExtractorFilenameTemplate = prefs[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE],
                 apkExtractorSplitFormat = prefs[PreferencesKeys.APK_EXTRACTOR_SPLIT_FORMAT],
+                apkExtractorIncludeObb = prefs[PreferencesKeys.APK_EXTRACTOR_INCLUDE_OBB],
                 manageSortBy = prefs[PreferencesKeys.MANAGE_SORT_BY],
                 manageSortDirection = prefs[PreferencesKeys.MANAGE_SORT_DIRECTION],
                 manageGroupBy = prefs[PreferencesKeys.MANAGE_GROUP_BY],
@@ -327,6 +328,7 @@ class BackupRestoreManager(
                 s.apkExtractorOutputPath?.let { prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH] = it }
                 s.apkExtractorFilenameTemplate?.let { prefs[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE] = it }
                 s.apkExtractorSplitFormat?.let { prefs[PreferencesKeys.APK_EXTRACTOR_SPLIT_FORMAT] = it }
+                s.apkExtractorIncludeObb?.let { prefs[PreferencesKeys.APK_EXTRACTOR_INCLUDE_OBB] = it }
 
                 // Manage Filter
                 s.manageSortBy?.let { prefs[PreferencesKeys.MANAGE_SORT_BY] = it }

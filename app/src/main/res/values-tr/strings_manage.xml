@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">Yedekleme İçeriği Bulundu</string>
     <string name="backup_restore_items_to_restore">Geri yüklenecek öğeleri seçin:</string>
     <string name="backup_restore_action">Şimdi Geri Yükle</string>
+    <string name="backup_include_obb_title">OBB ve Medya Verilerini Dahil Et</string>
+    <string name="backup_include_obb_desc">/Android/obb genişletme dosyalarını .xapk yedeğine arşivleyin</string>
 </resources>

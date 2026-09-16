@@ -165,6 +165,8 @@
     <string name="backup_filename_template">Filename Template</string>
     <string name="backup_tags_hint">Tags: {name}, {pkg}, {version}, {code}</string>
     <string name="backup_split_format_label">Split app format</string>
+    <string name="backup_include_obb_title">Include OBB &amp; Media Data</string>
+    <string name="backup_include_obb_desc">Archive /Android/obb expansion files into .xapk backup</string>
     <string name="manage_action_reinstall">Reinstall</string>
     <string name="manage_action_check_vt">Check VirusTotal</string>
     <string name="manage_action_installer_source">Installed by %1$s</string>

@@ -60,9 +60,21 @@ class UpdatesViewModel(
 
     private fun loadTrackedApps() {
         viewModelScope.launch {
+            repository.syncInstalledVersions()
             repository.getAllTrackedApps().collect { apps ->
-                _uiState.update { it.copy(trackedApps = apps) }
+                _uiState.update { state ->
+                    val updatedDetail = state.selectedAppForDetail?.let { detail ->
+                        apps.firstOrNull { it.packageName == detail.packageName } ?: detail
+                    }
+                    state.copy(trackedApps = apps, selectedAppForDetail = updatedDetail, isLoading = false)
+                }
             }
+        }
+    }
+
+    fun refreshInstalledVersions() {
+        viewModelScope.launch {
+            repository.syncInstalledVersions()
         }
     }
 
@@ -386,6 +398,19 @@ class UpdatesViewModel(
                     val metadata = metadataReader.readMetadata(Uri.fromFile(apkFile), isBundle = false)
                     if (metadata != null && metadata.packageName.isNotBlank()) {
                         Timber.i("Verified APK package: ${metadata.packageName} (v${metadata.versionName})")
+                        val realPkg = metadata.packageName
+                        val realName = metadata.appName.ifBlank { app.appName }
+                        if (app.packageName != realPkg) {
+                            repository.removeTrackedApp(app.packageName)
+                            val updatedApp = app.copy(
+                                packageName = realPkg,
+                                appName = realName,
+                            )
+                            repository.saveTrackedApp(updatedApp)
+                        } else if (app.appName != realName) {
+                            val updatedApp = app.copy(appName = realName)
+                            repository.saveTrackedApp(updatedApp)
+                        }
                     }
                     InstallerUtils.launchInstallerForFile(context, apkFile)
                     onComplete?.invoke()
@@ -431,6 +456,20 @@ class UpdatesViewModel(
 
                     val apkFile = result.getOrNull()
                     if (apkFile != null && apkFile.exists()) {
+                        val metadataReader = ApkMetadataReader(context)
+                        val metadata = metadataReader.readMetadata(Uri.fromFile(apkFile), isBundle = false)
+                        if (metadata != null && metadata.packageName.isNotBlank()) {
+                            val realPkg = metadata.packageName
+                            val realName = metadata.appName.ifBlank { app.appName }
+                            if (app.packageName != realPkg) {
+                                repository.removeTrackedApp(app.packageName)
+                                val updatedApp = app.copy(packageName = realPkg, appName = realName)
+                                repository.saveTrackedApp(updatedApp)
+                            } else if (app.appName != realName) {
+                                val updatedApp = app.copy(appName = realName)
+                                repository.saveTrackedApp(updatedApp)
+                            }
+                        }
                         withContext(Dispatchers.Main) {
                             InstallerUtils.launchInstallerForFile(context, apkFile)
                         }

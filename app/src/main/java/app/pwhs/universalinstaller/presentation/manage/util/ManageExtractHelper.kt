@@ -135,6 +135,7 @@ object ManageExtractHelper {
         } else {
             ApkExtractor.SplitFormat.APKS
         }
+        val includeObb = prefs[PreferencesKeys.APK_EXTRACTOR_INCLUDE_OBB] ?: false
         return ApkExtractor.extract(
             context = context,
             packageName = packageName,
@@ -146,6 +147,7 @@ object ManageExtractHelper {
             ),
             filenameTemplate = template,
             splitFormat = splitFormat,
+            includeObb = includeObb,
             onProgress = onProgress,
         )
     }

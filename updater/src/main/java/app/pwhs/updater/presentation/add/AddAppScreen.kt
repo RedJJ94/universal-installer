@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -13,11 +14,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AddLink
@@ -93,6 +96,8 @@ fun AddAppScreen(
         if (urlText.isBlank()) null else UpdateSourceType.fromUrl(urlText)
     }
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
             snackbarHostState.showSnackbar(it)
@@ -100,9 +105,13 @@ fun AddAppScreen(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             LargeTopAppBar(
+                scrollBehavior = scrollBehavior,
                 title = {
                     Text(
                         text = stringResource(R.string.updates_dialog_title),
@@ -121,7 +130,8 @@ fun AddAppScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                 ),
             )
         },
@@ -131,36 +141,42 @@ fun AddAppScreen(
                 shadowElevation = 8.dp,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Button(
-                    onClick = {
-                        viewModel.addTrackedAppFromUrl(
-                            context = context,
-                            url = urlText.trim(),
-                            includePrereleases = includePrereleases,
-                            targetPackageName = selectedApp?.packageName,
-                            category = categoryText.trim().takeIf { it.isNotBlank() },
-                            onSuccess = onBackClick,
-                        )
-                    },
-                    enabled = urlText.isNotBlank() && !uiState.isAdding,
-                    shape = MaterialTheme.shapes.large,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = Spacing.L, vertical = Spacing.M)
-                        .height(52.dp),
+                        .navigationBarsPadding()
+                        .padding(horizontal = Spacing.L, vertical = Spacing.M),
                 ) {
-                    if (uiState.isAdding) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                        Spacer(modifier = Modifier.width(Spacing.S))
-                        Text("Fetching Release Info…")
-                    } else {
-                        Icon(Icons.Rounded.AddLink, contentDescription = null, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(Spacing.S))
-                        Text(stringResource(R.string.updates_dialog_add_btn))
+                    Button(
+                        onClick = {
+                            viewModel.addTrackedAppFromUrl(
+                                context = context,
+                                url = urlText.trim(),
+                                includePrereleases = includePrereleases,
+                                targetPackageName = selectedApp?.packageName,
+                                category = categoryText.trim().takeIf { it.isNotBlank() },
+                                onSuccess = onBackClick,
+                            )
+                        },
+                        enabled = urlText.isNotBlank() && !uiState.isAdding,
+                        shape = MaterialTheme.shapes.large,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                    ) {
+                        if (uiState.isAdding) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                            Spacer(modifier = Modifier.width(Spacing.S))
+                            Text("Fetching Release Info…")
+                        } else {
+                            Icon(Icons.Rounded.AddLink, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(Spacing.S))
+                            Text(stringResource(R.string.updates_dialog_add_btn))
+                        }
                     }
                 }
             }

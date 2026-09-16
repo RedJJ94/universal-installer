@@ -53,7 +53,7 @@ class AddTrackedAppUseCase(
                 val appLabel = runCatching {
                     pkgInfo.applicationInfo?.let { pm.getApplicationLabel(it).toString() }
                 }.getOrNull() ?: cleanAppName
-                InstalledAppMatcher.findMatch(pm, url, appLabel) ?: InstalledAppMatchResult(
+                InstalledAppMatchResult(
                     packageName = targetPackageName,
                     appName = appLabel,
                     versionName = pkgInfo.versionName ?: "1.0",

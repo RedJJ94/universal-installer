@@ -188,4 +188,6 @@
     <string name="backup_restore_summary_title">ব্যাকআপ বিষয়বস্তু পাওয়া গেছে</string>
     <string name="backup_restore_items_to_restore">পুনরুদ্ধার করার আইটেমগুলো নির্বাচন করুন:</string>
     <string name="backup_restore_action">এখনই পুনরুদ্ধার করুন</string>
+    <string name="backup_include_obb_title">OBB এবং মিডিয়া ডেটা অন্তর্ভুক্ত করুন</string>
+    <string name="backup_include_obb_desc">/Android/obb সম্প্রসারণ ফাইল .xapk ব্যাকআপে সংরক্ষণ করুন</string>
 </resources>

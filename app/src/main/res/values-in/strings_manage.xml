@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">Konten Cadangan Ditemukan</string>
     <string name="backup_restore_items_to_restore">Pilih item yang akan dipulihkan:</string>
     <string name="backup_restore_action">Pulihkan Sekarang</string>
+    <string name="backup_include_obb_title">Sertakan Data OBB &amp; Media</string>
+    <string name="backup_include_obb_desc">Arsipkan file ekspansi /Android/obb ke dalam cadangan .xapk</string>
 </resources>

@@ -10,6 +10,10 @@ import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.presentation.install.InstallPromptNotifier
 import app.pwhs.universalinstaller.presentation.install.InstallViewModel
 import app.pwhs.universalinstaller.presentation.install.PendingInstallStore
+import app.pwhs.universalinstaller.domain.model.ApkInfo
+import app.pwhs.universalinstaller.domain.model.VtStatus
+import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -52,13 +56,29 @@ fun HeadlessNotificationInstall(
 
         Timber.i("$LOG: parsed ${apkInfo.packageName}, ${apkInfo.splitEntries.size} split(s)")
 
-        val risks = detectInstallRisks(apkInfo)
-
-        // Check auto-approve whitelist for this caller app
         val prefs = runCatching { context.dataStore.data.first() }.getOrNull()
+        val strictVirusTotal = SecurityLevel.from(
+            prefs?.get(PreferencesKeys.SECURITY_LEVEL)
+        ) == SecurityLevel.Strict
+
+        // If VirusTotal hash lookup is in progress, give it a brief window to complete so security flags aren't bypassed
+        var currentApkInfo: ApkInfo = apkInfo
+        if (currentApkInfo.vtResult?.status == VtStatus.SCANNING) {
+            val updated = withTimeoutOrNull(2500L) {
+                viewModel.uiState.map { it.pendingApkInfo }.filterNotNull().first {
+                    it.vtResult?.status != VtStatus.SCANNING
+                }
+            }
+            if (updated != null) {
+                currentApkInfo = updated
+            }
+        }
+
+        val risks = detectInstallRisks(currentApkInfo, strictVirusTotal)
+        val hasVtFlags = currentApkInfo.vtResult?.let { it.malicious > 0 || it.suspicious > 0 } == true
         val isCallerAutoApproved = AutoApproveApps.isAutoApproved(prefs, callerPackage)
 
-        if ((mode == ExternalOpenMode.AutoNotification || isCallerAutoApproved) && risks.isEmpty()) {
+        if ((mode == ExternalOpenMode.AutoNotification || isCallerAutoApproved) && risks.isEmpty() && !hasVtFlags) {
             Timber.i("$LOG: auto mode/approved, no risks - installing without asking (caller=$callerPackage, mode=$mode)")
             onInstallFromNotificationAction()
             return@LaunchedEffect
