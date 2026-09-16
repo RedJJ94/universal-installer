@@ -44,7 +44,7 @@ class AppDownloader(
         onProgress: (bytesDownloaded: Long, totalBytes: Long) -> Unit = { _, _ -> },
     ): Result<File> = withContext(Dispatchers.IO) {
         try {
-            val downloadDir = updatesDownloadDir().apply { mkdirs() }
+            val downloadDir = updatesDownloadDir()
             var outputFile = File(
                 downloadDir,
                 uniqueFileName(downloadDir, fallbackFileName(packageName, versionName)),
@@ -76,6 +76,7 @@ class AppDownloader(
                 val buffer = ByteArray(16 * 1024) // 16KB chunk buffer
                 var lastReportTime = 0L
 
+                outputFile.parentFile?.mkdirs()
                 FileOutputStream(outputFile).use { output ->
                     while (!channel.isClosedForRead) {
                         val bytesRead = channel.readAvailable(buffer, 0, buffer.size)
@@ -114,10 +115,31 @@ class AppDownloader(
     }
 
     private fun updatesDownloadDir(): File {
-        return File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            UPDATES_DOWNLOADS_SUBFOLDER,
-        )
+        // 1. Try public Downloads directory (visible to user & file managers)
+        val publicDir = runCatching {
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                UPDATES_DOWNLOADS_SUBFOLDER,
+            ).apply { mkdirs() }
+        }.getOrNull()
+
+        if (publicDir != null && publicDir.exists() && publicDir.canWrite()) {
+            return publicDir
+        }
+
+        // 2. Fallback to app-specific external files dir (no storage permissions required)
+        val appExternalDir = runCatching {
+            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let {
+                File(it, UPDATES_DOWNLOADS_SUBFOLDER).apply { mkdirs() }
+            }
+        }.getOrNull()
+
+        if (appExternalDir != null && appExternalDir.exists() && appExternalDir.canWrite()) {
+            return appExternalDir
+        }
+
+        // 3. Final fallback to internal cache dir (always accessible and writable)
+        return File(context.cacheDir, UPDATES_DOWNLOADS_SUBFOLDER).apply { mkdirs() }
     }
 
     private fun fallbackFileName(packageName: String, versionName: String): String {

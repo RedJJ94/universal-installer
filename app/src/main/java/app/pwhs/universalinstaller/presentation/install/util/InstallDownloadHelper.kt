@@ -48,11 +48,10 @@ object InstallDownloadHelper {
         val displayName = trimmed.substringAfterLast('/').substringBefore('?')
             .ifBlank { "download_${System.currentTimeMillis()}" }
 
-        val downloadsDir = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            DOWNLOADS_SUBFOLDER,
-        ).apply { mkdirs() }
-        val destination = File(downloadsDir, uniqueFileName(downloadsDir, displayName))
+        val downloadsDir = resolveDownloadDir(context)
+        val destination = File(downloadsDir, uniqueFileName(downloadsDir, displayName)).apply {
+            parentFile?.mkdirs()
+        }
 
         val estimator = app.pwhs.core.util.TransferEstimator()
         val result = packageDownloadService.download(trimmed, destination) { read, total ->
@@ -110,5 +109,33 @@ object InstallDownloadHelper {
                 downloadNotifier.notifyFailed(msg)
             },
         )
+    }
+
+    private fun resolveDownloadDir(context: Context): File {
+        // 1. Try public Downloads directory
+        val publicDir = runCatching {
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                DOWNLOADS_SUBFOLDER,
+            ).apply { mkdirs() }
+        }.getOrNull()
+
+        if (publicDir != null && publicDir.exists() && publicDir.canWrite()) {
+            return publicDir
+        }
+
+        // 2. Fallback to app-specific external files dir
+        val appExternalDir = runCatching {
+            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let {
+                File(it, DOWNLOADS_SUBFOLDER).apply { mkdirs() }
+            }
+        }.getOrNull()
+
+        if (appExternalDir != null && appExternalDir.exists() && appExternalDir.canWrite()) {
+            return appExternalDir
+        }
+
+        // 3. Fallback to internal cache dir
+        return File(context.cacheDir, DOWNLOADS_SUBFOLDER).apply { mkdirs() }
     }
 }
