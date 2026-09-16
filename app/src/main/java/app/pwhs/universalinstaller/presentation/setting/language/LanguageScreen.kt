@@ -85,6 +85,7 @@ private fun LanguageUi(
             "" to "System Default",
             "en" to "English",
             "ar" to "العربية",
+            "bn" to "বাংলা",
             "de" to "Deutsch",
             "el" to "Ελληνικά",
             "es" to "Español",

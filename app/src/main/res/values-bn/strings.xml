@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="txt_install">ইনস্টল</string>
+    <string name="txt_updates">আপডেট</string>
+    <string name="txt_manage">পরিচালনা</string>
+    <string name="more_actions_cd">আরও অ্যাকশন</string>
+    <string name="cancel">বাতিল</string>
+    <string name="status_success">সফল</string>
+    <string name="status_failed">ব্যর্থ</string>
+    <string name="permission_install_title">অজানা অ্যাপ ইনস্টল করুন</string>
+    <string name="permission_install_desc">APK, APK+, XAPK, APKS এবং APKM প্যাকেজ ইনস্টল করার জন্য প্রয়োজন। এটি ছাড়া কিছুই ইনস্টল করা যাবে না।</string>
+    <string name="permission_storage_title">সমস্ত ফাইল অ্যাক্সেস</string>
+    <string name="permission_storage_desc">Android 11+ এ আপনার ডিভাইসে প্যাকেজ স্ক্যান করতে এবং OBB ডেটা কপি করতে সাহায্য করে। ঐচ্ছিক — এটি ছাড়াও ব্রাউজ পিকার কাজ করবে।</string>
+    <string name="permission_notifications_title">বিজ্ঞপ্তি</string>
+    <string name="permission_notifications_desc">ডাউনলোড, OBB কপি এবং VirusTotal স্ক্যান অগ্রগতি দেখায় যাতে দীর্ঘ কাজের সময় আপনি অ্যাপ থেকে বের হতে পারেন।</string>
+    <string name="permission_usage_title">ব্যবহারের অ্যাক্সেস</string>
+    <string name="permission_usage_desc">ঐচ্ছিক — আনইনস্টল স্ক্রিনে সর্বশেষ ব্যবহারের ভিত্তিতে অ্যাপ সাজাতে এবং ব্যবহারের সময় দেখতে সাহায্য করে।</string>
+    <string name="back_cd">পেছনে</string>
+    <string name="done_cd">সম্পন্ন</string>
+    <string name="edit">সম্পাদনা</string>
+    <string name="file_size_gb">%1$.1f GB</string>
+    <string name="file_size_mb">%1$.1f MB</string>
+    <string name="file_size_kb">%1$.0f KB</string>
+    <string name="file_size_b">%1$d B</string>
+    <string name="permission_install_prompt_required">প্যাকেজ ইনস্টলার ব্যবহার করতে অনুগ্রহ করে \"অজানা অ্যাপ ইনস্টল করুন\" অনুমতি দিন।</string>
+    <string name="dir_picker_browse_action">ফোল্ডার ব্রাউজ করুন</string>
+    <string name="dir_picker_use_folder">এই ফোল্ডারটি ব্যবহার করুন</string>
+    <string name="dir_picker_new_folder">নতুন ফোল্ডার</string>
+    <string name="dir_picker_create">তৈরি করুন</string>
+    <string name="dir_picker_folder_name">ফোল্ডারের নাম</string>
+    <string name="dir_picker_empty">এখানে কোনো সাবফোল্ডার নেই</string>
+    <string name="dir_picker_grant_title">স্টোরেজ অ্যাক্সেস প্রয়োজন</string>
+    <string name="dir_picker_grant_message">Download এর মতো ফোল্ডারে সংরক্ষণ করতে Universal Installer-এর সমস্ত ফাইল অ্যাক্সেস প্রয়োজন। অনুমতি দিন, তারপর আবার চেষ্টা করুন।</string>
+    <string name="dir_picker_grant_action">অনুমতি দিন</string>
+    <string name="error_cannot_open_app">অ্যাপ খুলতে অক্ষম</string>
+    <string name="error_no_file_picker">ফাইল নির্বাচনের জন্য কোনো ফাইল ম্যানেজার অ্যাপ পাওয়া যায়নি</string>
+</resources>

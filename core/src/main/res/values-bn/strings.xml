@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Onboarding Shared -->
+    <string name="onboarding_skip">এড়িয়ে যান</string>
+    <string name="onboarding_next">পরবর্তী</string>
+    <string name="onboarding_get_started">শুরু করুন</string>
+    <string name="onboarding_restore_title">আপনার ডেটা পুনরুদ্ধার করুন</string>
+    <string name="onboarding_restore_desc">অন্য ডিভাইস বা Obtainium থেকে পরিবর্তন করছেন? আপনি এখনই আপনার সেটিংস, ট্র্যাক করা অ্যাপ্লিকেশন এবং API টোকেন পুনরুদ্ধার করতে পারেন।</string>
+    <string name="onboarding_restore_action">ব্যাকআপ থেকে পুনরুদ্ধার করুন</string>
+    <string name="onboarding_permission_granted">অনুমতি দেওয়া হয়েছে</string>
+    <string name="onboarding_grant_permission">অনুমতি দিন</string>
+    <string name="onboarding_page1_title">যেকোনো প্যাকেজ ইনস্টল করুন</string>
+    <string name="onboarding_page1_desc">APK, APKS, XAPK এবং APKM ফরম্যাট সমর্থিত। সহজেই স্প্লিট APK ইনস্টল করুন।</string>
+    <string name="onboarding_page2_title">আপনার অ্যাপ পরিচালনা করুন</string>
+    <string name="onboarding_page2_desc">ইনস্টল করা অ্যাপ ব্রাউজ করুন, অপ্রয়োজনীয় অ্যাপ আনইনস্টল করুন এবং অনায়াসে আপনার ডিভাইস পরিচালনা করুন।</string>
+    <string name="onboarding_page3_title">ইনস্টলেশনের অনুমতি দিন</string>
+    <string name="onboarding_page3_desc">প্যাকেজ ইনস্টল করার জন্য, অ্যাপটির অজানা উৎস থেকে ইনস্টল করার অনুমতি প্রয়োজন। এটি দিতে নিচের বোতামে ট্যাপ করুন।</string>
+    <string name="onboarding_virustotal_title">ইনস্টল করার আগে স্ক্যান করুন</string>
+    <string name="onboarding_virustotal_desc">ইনস্টল স্ক্রিন থেকে ৭০+ এর বেশি অ্যান্টিভাইরাস ইঞ্জিন দিয়ে যেকোনো প্যাকেজ পরীক্ষা করুন। এর জন্য একটি বিনামূল্যে VirusTotal API কী প্রয়োজন।</string>
+    <string name="onboarding_security_normal">সাধারণ</string>
+    <string name="onboarding_security_strict">কঠোর</string>
+    <string name="onboarding_security_normal_sub">ইনস্টল বোতামটি প্রধান হিসেবে থাকবে। আপনি যখন ইচ্ছা তখন স্ক্যান করতে পারবেন।</string>
+    <string name="onboarding_security_strict_sub">স্ক্যান বোতামটি প্রধান হয়ে যাবে এবং স্ক্যান না করা ফাইল ইনস্টল করার আগে জিজ্ঞাসা করবে।</string>
+    <string name="onboarding_virustotal_get_key">একটি বিনামূল্যে API কী পান</string>
+    <string name="onboarding_virustotal_key_label">VirusTotal API কী</string>
+    <string name="onboarding_virustotal_paste">ক্লিপবোর্ড থেকে পেস্ট করুন</string>
+    <string name="onboarding_virustotal_key_hint">ঐচ্ছিক — আপনি পরবর্তীতে সেটিংসে এটি যোগ করতে পারেন।</string>
+    <string name="onboarding_virustotal_key_saved">সংরক্ষিত হয়েছে। স্ক্যান করার জন্য প্রস্তুত।</string>
+    <string name="onboarding_virustotal_key_malformed">একটি কী ৬৪ অক্ষরের হয় — পেস্টটি পরীক্ষা করুন।</string>
+    <string name="onboarding_xiaomi_title">যদি MIUI-তে ইনস্টল ব্যর্থ হয়</string>
+    <string name="onboarding_xiaomi_desc">MIUI/HyperOS অপ্টিমাইজেশন কারণ না জানিয়ে তৃতীয় পক্ষের ইনস্টলেশন ব্লক করতে পারে। এমন হলে, ডেভেলপার অপশন খুলুন, \"MIUI অপ্টিমাইজেশন\" বন্ধ করুন, অ্যাপটি ইনস্টল করুন এবং তারপর আবার চালু করুন। বন্ধ থাকা অবস্থায় সিস্টেম থিম বিকৃত দেখাতে পারে — ফোন রিস্টার্ট করলে ঠিক হয়ে যাবে।</string>
+    <string name="onboarding_xiaomi_open_developer_options">ডেভেলপার অপশন খুলুন</string>
+
+    <!-- Permission Monitor Shared -->
+    <string name="permission_return_channel_name">অ্যাপে ফিরে যান</string>
+    <string name="permission_return_channel_desc">সিস্টেম সেটিংসে অনুমতি দেওয়ার পরে অ্যাপে ফিরে আসার বিজ্ঞপ্তি।</string>
+    <string name="permission_return_title">অনুমতি দেওয়া হয়েছে</string>
+    <string name="permission_return_body">Universal Installer-এ ফিরে যেতে ট্যাপ করুন।</string>
+    <!-- Onboarding: anonymous reporting. Shown only on the Play build, opted in. -->
+    <string name="onboarding_analytics_title">ত্রুটি সমাধানে সাহায্য করুন</string>
+    <string name="onboarding_analytics_desc">প্রতিটি ফোনে অ্যাপ ইনস্টলেশন ভিন্নভাবে কাজ করে, এবং অ্যাপটি জানালেই কেবল আমরা ব্যর্থতার কারণ জানতে পারি। এটি শুধুমাত্র ইনস্টলেশন কাজ করেছে কিনা এবং কী ভুল হয়েছে তা জানায় — আপনি কোন অ্যাপ ইনস্টল করেছেন তা কখনোই প্রকাশ করে না।</string>
+    <string name="onboarding_analytics_switch">বেনামী ডায়াগনস্টিক শেয়ার করুন</string>
+    <string name="onboarding_analytics_switch_sub">আপনি সেটিংসে যেকোনো সময় এটি পরিবর্তন করতে পারেন।</string>
+    <!-- App Updates Tracking Shared -->
+    <string name="updates_title">অ্যাপ আপডেট</string>
+    <string name="updates_available_count">%1$dটি আপডেট উপলব্ধ</string>
+    <string name="updates_check_all">আপডেটের জন্য পরীক্ষা করুন</string>
+    <string name="updates_track_app">অ্যাপ ট্র্যাক করুন</string>
+    <string name="updates_track_first_app">প্রথম অ্যাপ ট্র্যাক করুন</string>
+    <string name="updates_search_placeholder">ট্র্যাক করা অ্যাপ অনুসন্ধান করুন…</string>
+    <string name="updates_no_apps_title">এখনও কোনো অ্যাপ ট্র্যাক করা হয়নি</string>
+    <string name="updates_no_apps_subtitle">আপনার সাইডলোড করা অ্যাপগুলো স্বয়ংক্রিয়ভাবে আপডেট রাখতে GitHub বা GitLab রিলিজের লিঙ্ক পেস্ট করুন।</string>
+    <string name="updates_no_results_title">কোনো ফলাফল পাওয়া যায়নি</string>
+    <string name="updates_no_results_subtitle">\"%1$s\" এর সাথে কোনো অ্যাপ মেলেনি</string>
+    <string name="updates_dialog_title">GitHub / GitLab অ্যাপ ট্র্যাক করুন</string>
+    <string name="updates_dialog_subtitle">স্বয়ংক্রিয় আপডেট পেতে এবং ট্র্যাক করতে একটি রিপোজিটরি রিলিজ লিঙ্ক পেস্ট করুন।</string>
+    <string name="updates_dialog_url_label">রিলিজ বা রেপো URL</string>
+    <string name="updates_dialog_prerelease">প্রি-রিলিজ অন্তর্ভুক্ত করুন</string>
+    <string name="updates_dialog_add_btn">অ্যাপ যোগ করুন</string>
+    <string name="updates_banner_title_has_updates">%1$dটি আপডেট উপলব্ধ</string>
+    <string name="updates_banner_desc_has_updates">সর্বশেষ সংস্করণ ডাউনলোড এবং ইনস্টল করতে ট্যাপ করুন</string>
+    <string name="updates_banner_title_idle">অ্যাপ আপডেট ট্র্যাক করুন</string>
+    <string name="updates_banner_desc_idle">GitHub / GitLab থেকে স্বয়ংক্রিয়ভাবে রিলিজ ট্র্যাক করুন</string>
+    <string name="updates_card_badge_new">নতুন: %1$s</string>
+    <string name="updates_card_badge_up_to_date">আপ টু ডেট</string>
+    <string name="updates_card_badge_not_installed">ইনস্টল করা নেই</string>
+    <string name="updates_card_current_version">বর্তমান: %1$s</string>
+    <string name="updates_card_tag">ট্যাগ: %1$s</string>
+    <string name="updates_card_downloading">আপডেট ডাউনলোড হচ্ছে…</string>
+    <string name="updates_card_changelog_title">পরিবর্তন তালিকা / রিলিজ নোট</string>
+    <string name="updates_card_btn_update">আপডেট</string>
+    <string name="updates_card_btn_install">ইনস্টল</string>
+    <string name="updates_card_btn_delete">মুছুন</string>
+    <string name="updates_card_btn_check">আপডেট পরীক্ষা করুন</string>
+    <string name="updates_menu_import">অ্যাপ আমদানি করুন (JSON)</string>
+    <string name="updates_menu_export">অ্যাপ রপ্তানি করুন (JSON)</string>
+    <string name="updates_import_success">%1$dটি অ্যাপ আমদানি করা হয়েছে</string>
+    <string name="updates_dialog_pick_apk_title">ডাউনলোডের জন্য ফাইল নির্বাচন করুন</string>
+    <string name="updates_dialog_pick_apk_subtitle">এই রিলিজে একাধিক প্যাকেজ রয়েছে। আপনার ডিভাইসের সাথে সামঞ্জস্যপূর্ণ ফাইলটি নির্বাচন করুন:</string>
+    <string name="updates_dialog_device_arch">ডিভাইসের আর্কিটেকচার: %1$s</string>
+    <string name="updates_dialog_recommended">প্রস্তাবিত</string>
+    <string name="updates_detail_choose_asset_btn">ডাউনলোডের জন্য ফাইল বেছে নিন (%1$d)</string>
+    <string name="updates_filter_all">সমস্ত</string>
+    <string name="updates_filter_installed">ইনস্টল করা</string>
+    <string name="updates_filter_updates">আপডেট</string>
+    <string name="updates_config_saved">কনফিগারেশন সংরক্ষিত হয়েছে</string>
+    <string name="updates_checking_progress">আপডেট পরীক্ষা করা হচ্ছে (%1$d/%2$d)…</string>
+    <string name="updates_check_completed_found">পরীক্ষা সম্পন্ন: %1$dটি আপডেট উপলব্ধ</string>
+    <string name="updates_check_completed_none">সমস্ত ট্র্যাক করা অ্যাপ আপ টু ডেট আছে</string>
+    <string name="updates_check_single_found">%1$s এর জন্য আপডেট উপলব্ধ: %2$s</string>
+    <string name="updates_check_single_none">%1$s আপ টু ডেট আছে</string>
+    <string name="updates_installed_version_regex_label">ইনস্টল করা সংস্করণের RegEx (ঐচ্ছিক)</string>
+    <string name="updates_installed_version_regex_placeholder">যেমন Shizuku\\+\s*(.+) বা [0-9.]+</string>
+    <string name="updates_installed_match_group_label">ইনস্টল করা ম্যাচ গ্রুপ (ঐচ্ছিক)</string>
+    <string name="updates_preview_installed_extracted">নিষ্কাশিত প্রিভিউ: %1$s</string>
+    <string name="updates_config_title">অ্যাপ কনফিগারেশন</string>
+    <string name="updates_config_save_btn">কনফিগারেশন সংরক্ষণ করুন</string>
+    <string name="updates_config_include_prereleases">প্রি-রিলিজ অন্তর্ভুক্ত করুন (বিটা)</string>
+    <string name="updates_config_use_release_title">রিলিজ শিরোনামকে সংস্করণ হিসেবে ব্যবহার করুন</string>
+    <string name="updates_config_use_release_title_desc">Git ট্যাগের পরিবর্তে শিরোনাম থেকে বের করুন</string>
+    <string name="updates_config_asset_regex_label">অ্যাসেট Regex ফিল্টার (ঐচ্ছিক)</string>
+    <string name="updates_config_asset_regex_placeholder">যেমন .*-arm64.*\\.apk</string>
+    <string name="updates_config_version_regex_label">সংস্করণ নিষ্কাশন RegEx (ঐচ্ছিক)</string>
+    <string name="updates_config_version_regex_placeholder">যেমন ^NeoPlayer(.+)$ বা [0-9.]+</string>
+    <string name="updates_config_preview_extracted">নিষ্কাশিত প্রিভিউ: %1$s</string>
+    <string name="updates_config_match_group_label">ব্যবহারের জন্য ম্যাচ গ্রুপ (ঐচ্ছিক)</string>
+    <string name="updates_config_match_group_placeholder">যেমন 1 বা $1 বা $1.$2 (ডিফল্ট: $1 বা $0)</string>
+    <string name="updates_config_installed_match_group_placeholder">যেমন 1 বা $1 (ডিফল্ট: $1 বা $0)</string>
+    <string name="updates_config_category_label">বিভাগ</string>
+    <string name="updates_config_category_placeholder">যেমন Tools, Social, Games</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_install">ইনস্টল</string>
+    <string name="nav_updates">আপডেট</string>
+    <string name="nav_manage">পরিচালনা</string>
+    <string name="nav_settings">সেটিংস</string>
+
+    <!-- Transfer Estimator -->
+    <string name="transfer_speed">%1$s/s</string>
+    <string name="transfer_eta_seconds">~%1$d সেকেন্ড বাকি</string>
+    <string name="transfer_eta_minutes_seconds">~%1$d মি %2$d সে বাকি</string>
+    <string name="transfer_eta_hours_minutes">~%1$d ঘণ্টা %2$d মি বাকি</string>
+</resources>

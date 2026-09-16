@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home screen -->
+    <string name="home_title">APK সারি</string>
+
+    <!-- Detail screen -->
+    <string name="install">ইনস্টল</string>
+    <string name="delete">মুছুন</string>
+    <string name="retry">পুনরায় চেষ্টা করুন</string>
+    <string name="installing">ইনস্টল হচ্ছে…</string>
+    <string name="install_failed">ইনস্টল ব্যর্থ হয়েছে</string>
+    <string name="loading">লোড হচ্ছে…</string>
+
+    <string name="install_anyway">তবুও ইনস্টল করুন</string>
+    <string name="unknown_sources_msg">ঘড়ির সেটিংসে Universal Installer-এর জন্য \"অজানা অ্যাপ ইনস্টল করুন\" চালু করুন।</string>
+    <string name="unknown_sources_open_settings">সেটিংস খুলুন</string>
+    <string name="unknown_sources_hidden">এই ঘড়িটি সেটিংটি লুকিয়ে রাখে। ওয়্যারলেস ডিবাগিংয়ের মাধ্যমে এটি মঞ্জুর করুন:\nadb shell appops set app.pwhs.universalinstaller REQUEST_INSTALL_PACKAGES allow</string>
+    <string name="incompatible_min_sdk">Android API %1$d প্রয়োজন, এই ঘড়িটি API %2$d।</string>
+    <string name="incompatible_not_a_watch_app">এটি একটি ফোন অ্যাপ, কোনো Wear OS অ্যাপ নয়।</string>
+
+    <!-- Notification -->
+    <string name="apk_received_title">APK পাওয়া গেছে</string>
+    <string name="receive_channel_name">প্যাকেজ গ্রহণ করা হচ্ছে</string>
+
+    <string name="home_empty_title">এখানে এখনও কিছু নেই</string>
+    <string name="home_empty_hint">আপনার ফোনে Universal Installer খুলুন এবং এই ঘড়িতে একটি প্যাকেজ পাঠান।</string>
+    <string name="receiving">%1$s গ্রহণ করা হচ্ছে…</string>
+    <string name="receive_failed">স্থানান্তর ব্যর্থ হয়েছে</string>
+    <string name="badge_phone_app">ফোন অ্যাপ</string>
+    <string name="badge_installed">ইনস্টল করা</string>
+    <string name="badge_update">আপডেট</string>
+    <string name="badge_older">পুরানো</string>
+    <string name="manage_title">অ্যাপ পরিচালনা</string>
+    <string name="manage_show_system">সিস্টেম অ্যাপ দেখান</string>
+    <string name="manage_hide_system">সিস্টেম অ্যাপ লুকান</string>
+    <string name="manage_empty">আপনার দ্বারা এখনও কোনো অ্যাপ ইনস্টল করা হয়নি।</string>
+    <string name="uninstall">আনইনস্টল</string>
+
+    <!-- More / Settings -->
+    <string name="more_title">আরও</string>
+    <string name="settings_title">সেটিংস</string>
+    <string name="settings_storage">স্টোরেজ</string>
+    <string name="settings_storage_summary">সারি %1$s · %2$s খালি</string>
+    <string name="settings_clear_queue">সারি মুছুন</string>
+    <string name="settings_clear_queue_confirm">সারিতে অপেক্ষারত প্রতিটি প্যাকেজ মুছবেন?</string>
+    <string name="settings_keep_after_install">ইনস্টল করার পরে APK রাখুন</string>
+    <string name="settings_keep_after_install_on">রাখা হয়েছে, যাতে এটি আবার ইনস্টল করা যায়</string>
+    <string name="settings_keep_after_install_off">ইনস্টল হওয়ার পরে মুছে ফেলা হবে</string>
+    <string name="settings_install_permission">ইনস্টল অনুমতি</string>
+    <string name="settings_install_permission_summary">অজানা অ্যাপ ইনস্টল করার অনুমতি দিন</string>
+    <string name="settings_language">ভাষা</string>
+    <string name="settings_language_system">ঘড়ির ভাষা</string>
+    <string name="settings_accent">অ্যাকসেন্ট রং</string>
+    <string name="accent_orange">কমলা</string>
+    <string name="accent_blue">নীল</string>
+    <string name="accent_green">সবুজ</string>
+    <string name="accent_purple">বেগুনি</string>
+    <string name="settings_about">সম্পর্কিত</string>
+    <string name="settings_about_summary">সংস্করণ এবং প্যাকেজের নাম</string>
+    <string name="about_version">সংস্করণ</string>
+    <string name="about_package">প্যাকেজ</string>
+    <string name="about_rate">এই অ্যাপটি রেট করুন</string>
+    <string name="cancel">বাতিল</string>
+</resources>
