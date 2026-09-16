@@ -1,0 +1,4 @@
+• Fixed app freezing when opening add app dialog
+• Aligned updates category filters for TV remote navigation
+• Added Bengali (bn) language support
+• Stability improvements and bug fixes
