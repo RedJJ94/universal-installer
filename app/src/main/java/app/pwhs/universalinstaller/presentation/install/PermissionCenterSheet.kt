@@ -218,8 +218,8 @@ internal fun PermissionCenterSheet(
                         item = item,
                         onGrant = {
                             val permType = when (item.kind) {
-                                PermKind.Install -> app.pwhs.core.telemetry.TelemetryEvents.PERM_INSTALL_PACKAGES
-                                PermKind.Storage -> app.pwhs.core.telemetry.TelemetryEvents.PERM_MANAGE_EXTERNAL_STORAGE
+                                PermKind.Install -> app.pwhs.core.telemetry.TelemetryEvents.PERM_INSTALL_UNKNOWN_APPS
+                                PermKind.Storage -> app.pwhs.core.telemetry.TelemetryEvents.PERM_ALL_FILES
                                 PermKind.Notifications -> app.pwhs.core.telemetry.TelemetryEvents.PERM_NOTIFICATIONS
                                 PermKind.Usage -> "usage_stats"
                             }

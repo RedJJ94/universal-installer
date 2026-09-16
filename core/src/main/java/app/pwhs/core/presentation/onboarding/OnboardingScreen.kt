@@ -57,6 +57,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.pwhs.core.R
 import app.pwhs.core.data.local.SharedPrefsKeys
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.telemetry.AnalyticsHelper
+import app.pwhs.core.telemetry.TelemetryEvents
 import app.pwhs.core.util.DeviceCompat
 import app.pwhs.core.util.PermissionMonitor
 import kotlinx.coroutines.flow.first
@@ -218,10 +220,26 @@ fun OnboardingScreen(
         )
     }
 
+    LaunchedEffect(Unit) {
+        AnalyticsHelper.logOnboardingStart()
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        AnalyticsHelper.logOnboardingPageView(pagerState.currentPage + 1)
+    }
+
     LifecycleResumeEffect(Unit) {
-        hasInstallPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val wasGranted = hasInstallPermission
+        val nowGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.packageManager.canRequestPackageInstalls()
         } else true
+        if (!wasGranted && nowGranted) {
+            AnalyticsHelper.logPermissionResult(
+                permissionName = TelemetryEvents.PERM_INSTALL_UNKNOWN_APPS,
+                granted = true
+            )
+        }
+        hasInstallPermission = nowGranted
         PermissionMonitor.stop()
         onPauseOrDispose {}
     }
@@ -243,6 +261,7 @@ fun OnboardingScreen(
             ) {
                 if (pagerState.currentPage < pages.lastIndex) {
                     TextButton(onClick = {
+                        AnalyticsHelper.logOnboardingSkipped(pageIndex = pagerState.currentPage + 1)
                         scope.launch {
                             pagerState.animateScrollToPage(pages.lastIndex)
                         }
@@ -296,13 +315,24 @@ fun OnboardingScreen(
                     hasPermission = hasInstallPermission,
                     onRequestPermission = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            AnalyticsHelper.logPermissionRequested(
+                                permissionName = TelemetryEvents.PERM_INSTALL_UNKNOWN_APPS,
+                                source = TelemetryEvents.SOURCE_ONBOARDING
+                            )
                             val intent = Intent(
                                 Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                                 Uri.parse("package:${context.packageName}")
                             )
                             if (activity != null) {
                                 PermissionMonitor.start(activity) {
-                                    context.packageManager.canRequestPackageInstalls()
+                                    val granted = context.packageManager.canRequestPackageInstalls()
+                                    if (granted) {
+                                        AnalyticsHelper.logPermissionResult(
+                                            permissionName = TelemetryEvents.PERM_INSTALL_UNKNOWN_APPS,
+                                            granted = true
+                                        )
+                                    }
+                                    granted
                                 }
                             }
                             context.startActivity(intent)
@@ -357,6 +387,7 @@ fun OnboardingScreen(
                 } else {
                     Button(onClick = {
                         scope.launch {
+                            AnalyticsHelper.logOnboardingComplete(stepCount = pages.size)
                             context.dataStore.edit {
                                 it[SharedPrefsKeys.ONBOARDING_COMPLETED] = true
                             }

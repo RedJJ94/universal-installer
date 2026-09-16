@@ -34,13 +34,15 @@ InstallerX-Revived-main
 # android-re: decompiled APKs and analysis output (large, regenerable)
 android-re-workspace/
 
-# Firebase config for the `play` flavor and TV app — carries our project's API key and app id, and its
+# Firebase config for the `play` flavor, TV, and Wear OS app — carries our project's API key and app id, and its
 # presence is what enables the play/firebase variants. Kept out of the public repo; CI writes it
 # from the GOOGLE_SERVICES_JSON secret. See docs/FIREBASE.md.
 app/src/play/google-services.json
 app/google-services.json
 tv/google-services.json
 tv/**/google-services.json
+wearos/google-services.json
+wearos/**/google-services.json
 .firebaserc
 firebase.json
 

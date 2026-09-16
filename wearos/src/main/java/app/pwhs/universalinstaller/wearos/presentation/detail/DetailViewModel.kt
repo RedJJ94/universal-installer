@@ -61,6 +61,15 @@ class DetailViewModel(
             return
         }
 
+        val ext = if (info.isBundle) "apks" else "apk"
+        val startTime = System.currentTimeMillis()
+        app.pwhs.core.telemetry.AnalyticsHelper.logInstallStarted(
+            fileType = ext,
+            installMode = "session_installer",
+            isSplit = info.isBundle,
+            fileSizeBytes = info.sizeBytes,
+        )
+
         viewModelScope.launch {
             _installState.value = InstallState.Installing(null)
             val result = installer.install(
@@ -73,6 +82,39 @@ class DetailViewModel(
                     }
                 },
             )
+            val durationMs = System.currentTimeMillis() - startTime
+            val status = if (result is ApkInstaller.Result.Success) {
+                app.pwhs.core.telemetry.TelemetryEvents.RESULT_SUCCESS
+            } else {
+                app.pwhs.core.telemetry.TelemetryEvents.RESULT_FAILURE
+            }
+            val failureMessage = (result as? ApkInstaller.Result.Failure)?.message
+            val errorCode = failureMessage?.let { msg ->
+                val match = Regex("""\b(INSTALL_(?:PARSE_)?FAILED_[A-Z0-9_]+)\b""").find(msg)
+                match?.groupValues?.get(1) ?: "INSTALL_FAILED_UNKNOWN"
+            }
+            val errorType = if (errorCode != null) {
+                when {
+                    "SIGNATURE" in errorCode || "UPDATE_INCOMPATIBLE" in errorCode -> "signature_mismatch"
+                    "DOWNGRADE" in errorCode -> "version_downgrade"
+                    "STORAGE" in errorCode -> "insufficient_storage"
+                    "PARSE" in errorCode || "INVALID_APK" in errorCode -> "corrupted_package"
+                    "ABI" in errorCode || "SDK" in errorCode -> "incompatible_device"
+                    "RESTRICTED" in errorCode -> "permission_denied"
+                    else -> "os_blocked"
+                }
+            } else null
+
+            app.pwhs.core.telemetry.AnalyticsHelper.logInstallResult(
+                fileType = ext,
+                status = status,
+                errorCode = errorCode,
+                errorType = errorType,
+                errorReason = errorCode,
+                installMode = "session_installer",
+                durationMs = durationMs
+            )
+
             when (result) {
                 is ApkInstaller.Result.Success -> {
                     _installState.value = InstallState.Success
