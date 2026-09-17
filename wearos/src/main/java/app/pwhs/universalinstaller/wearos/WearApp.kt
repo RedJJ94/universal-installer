@@ -13,6 +13,7 @@ import org.koin.core.context.startKoin
 class WearApp : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
+        app.pwhs.universalinstaller.wearos.telemetry.WearTelemetryInit.init(this)
         startKoin {
             androidLogger()
             androidContext(this@WearApp)

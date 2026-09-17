@@ -9,31 +9,76 @@ import kotlin.math.round
 object AnalyticsHelper {
 
     // ── Giai đoạn 1: Onboarding & Cấp Quyền ────────────────────────────────
-    fun logPermissionRequested(permissionType: String, source: String) {
+    fun logOnboardingStart() {
+        Telemetry.event(TelemetryEvents.EVENT_ONBOARDING_START)
+    }
+
+    fun logOnboardingPageView(pageIndex: Int) {
+        Telemetry.event(
+            TelemetryEvents.EVENT_ONBOARDING_PAGE_VIEW,
+            TelemetryEvents.PARAM_PAGE_INDEX to pageIndex
+        )
+    }
+
+    fun logOnboardingSkipped(pageIndex: Int? = null) {
+        val params = mutableMapOf<String, Any?>()
+        if (pageIndex != null) {
+            params[TelemetryEvents.PARAM_PAGE_INDEX] = pageIndex
+        }
+        Telemetry.event(TelemetryEvents.EVENT_ONBOARDING_SKIPPED, params)
+    }
+
+    fun logPermissionRequested(
+        permissionName: String,
+        source: String = TelemetryEvents.SOURCE_ONBOARDING
+    ) {
         Telemetry.event(
             TelemetryEvents.EVENT_PERMISSION_REQUESTED,
-            TelemetryEvents.PARAM_PERMISSION_TYPE to permissionType,
+            TelemetryEvents.PARAM_PERMISSION_NAME to permissionName,
+            TelemetryEvents.PARAM_PERMISSION_TYPE to permissionName,
             TelemetryEvents.PARAM_SOURCE to source
         )
     }
 
-    fun logPermissionResult(permissionType: String, status: String) {
+    fun logPermissionResult(permissionName: String, granted: Boolean) {
         Telemetry.event(
             TelemetryEvents.EVENT_PERMISSION_RESULT,
+            TelemetryEvents.PARAM_PERMISSION_NAME to permissionName,
+            TelemetryEvents.PARAM_PERMISSION_TYPE to permissionName,
+            TelemetryEvents.PARAM_GRANTED to granted,
+            TelemetryEvents.PARAM_STATUS to if (granted) TelemetryEvents.STATUS_GRANTED else TelemetryEvents.STATUS_DENIED
+        )
+    }
+
+    fun logPermissionResult(permissionType: String, status: String) {
+        val granted = status == TelemetryEvents.STATUS_GRANTED
+        Telemetry.event(
+            TelemetryEvents.EVENT_PERMISSION_RESULT,
+            TelemetryEvents.PARAM_PERMISSION_NAME to permissionType,
             TelemetryEvents.PARAM_PERMISSION_TYPE to permissionType,
+            TelemetryEvents.PARAM_GRANTED to granted,
             TelemetryEvents.PARAM_STATUS to status
         )
     }
 
-    fun logOnboardingComplete(stepCount: Int, durationSec: Long) {
-        Telemetry.event(
-            TelemetryEvents.EVENT_ONBOARDING_COMPLETE,
-            TelemetryEvents.PARAM_STEP_COUNT to stepCount,
-            TelemetryEvents.PARAM_DURATION_SEC to durationSec
-        )
+    fun logOnboardingComplete(stepCount: Int? = null, durationSec: Long? = null) {
+        val params = mutableMapOf<String, Any?>()
+        if (stepCount != null) params[TelemetryEvents.PARAM_STEP_COUNT] = stepCount
+        if (durationSec != null) params[TelemetryEvents.PARAM_DURATION_SEC] = durationSec
+        Telemetry.event(TelemetryEvents.EVENT_ONBOARDING_COMPLETE, params)
     }
 
     // ── Giai đoạn 2: Phễu Cài đặt Cốt lõi ──────────────────────────────────
+    fun logScreenView(screenName: String, screenClass: String? = null) {
+        val params = mutableMapOf<String, Any?>(
+            TelemetryEvents.PARAM_SCREEN_NAME to screenName.take(50)
+        )
+        if (!screenClass.isNullOrBlank()) {
+            params[TelemetryEvents.PARAM_SCREEN_CLASS] = screenClass.take(50)
+        }
+        Telemetry.event("screen_view", params)
+    }
+
     fun logFilePicked(fileType: String, fileCount: Int, source: String) {
         Telemetry.event(
             TelemetryEvents.EVENT_FILE_PICKED,
@@ -63,34 +108,54 @@ object AnalyticsHelper {
         fileType: String,
         installMode: String,
         isSplit: Boolean,
-        fileSizeBytes: Long
+        fileSizeBytes: Long,
+        fileCount: Int = 1
     ) {
+        val safeMode = installMode.ifBlank { "default" }
+        val safeFileType = fileType.normalizeFileType().ifBlank { "apk" }
         val sizeMb = if (fileSizeBytes > 0) round((fileSizeBytes.toDouble() / (1024 * 1024)) * 10.0) / 10.0 else 0.0
         Telemetry.event(
             TelemetryEvents.EVENT_INSTALL_STARTED,
-            TelemetryEvents.PARAM_FILE_TYPE to fileType.normalizeFileType(),
-            TelemetryEvents.PARAM_INSTALL_MODE to installMode,
+            TelemetryEvents.PARAM_FILE_TYPE to safeFileType,
+            TelemetryEvents.PARAM_INSTALL_MODE to safeMode,
+            TelemetryEvents.PARAM_METHOD to safeMode,
             TelemetryEvents.PARAM_IS_SPLIT to isSplit,
-            TelemetryEvents.PARAM_FILE_SIZE_MB to sizeMb
+            TelemetryEvents.PARAM_FILE_SIZE_MB to sizeMb,
+            TelemetryEvents.PARAM_FILE_COUNT to fileCount,
+            TelemetryEvents.PARAM_APK_COUNT to fileCount
         )
-        updateInstallerMode(installMode)
+        updateInstallerMode(safeMode)
     }
 
     fun logInstallResult(
-        fileType: String,
+        fileType: String = "apk",
         status: String,
         errorCode: String? = null,
+        errorType: String? = null,
+        errorReason: String? = null,
         installMode: String,
-        durationMs: Long
+        durationMs: Long = 0L
     ) {
+        val safeMode = installMode.ifBlank { "default" }
+        val safeStatus = status.ifBlank { TelemetryEvents.RESULT_FAILURE }
+        val safeFileType = fileType.normalizeFileType().ifBlank { "apk" }
         val params = mutableMapOf<String, Any?>(
-            TelemetryEvents.PARAM_FILE_TYPE to fileType.normalizeFileType(),
-            TelemetryEvents.PARAM_STATUS to status,
-            TelemetryEvents.PARAM_INSTALL_MODE to installMode,
+            TelemetryEvents.PARAM_FILE_TYPE to safeFileType,
+            TelemetryEvents.PARAM_STATUS to safeStatus,
+            TelemetryEvents.PARAM_RESULT to safeStatus,
+            TelemetryEvents.PARAM_INSTALL_MODE to safeMode,
+            TelemetryEvents.PARAM_METHOD to safeMode,
             TelemetryEvents.PARAM_DURATION_MS to durationMs
         )
         if (!errorCode.isNullOrBlank()) {
-            params[TelemetryEvents.PARAM_ERROR_CODE] = errorCode.take(40)
+            params[TelemetryEvents.PARAM_ERROR_CODE] = errorCode.take(60)
+            params[TelemetryEvents.PARAM_FAILURE] = errorCode.take(60)
+        }
+        if (!errorType.isNullOrBlank()) {
+            params[TelemetryEvents.PARAM_ERROR_TYPE] = errorType.take(40)
+        }
+        if (!errorReason.isNullOrBlank()) {
+            params[TelemetryEvents.PARAM_ERROR_REASON] = errorReason.take(60)
         }
         Telemetry.event(TelemetryEvents.EVENT_INSTALL_RESULT, params)
     }

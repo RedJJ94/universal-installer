@@ -124,12 +124,13 @@ fun AppFilePickerDialog(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 280.dp),
+                        .heightIn(max = 340.dp),
                     verticalArrangement = Arrangement.spacedBy(Spacing.XS),
                 ) {
                     items(assets) { asset ->
                         val isSelected = asset.downloadUrl == selectedAsset?.downloadUrl
                         val isRecommended = asset.downloadUrl == recommendedAsset?.downloadUrl
+                        val abiTag = remember(asset.name) { SmartAbiMatcher.detectAbiTag(asset.name) }
 
                         Surface(
                             shape = MaterialTheme.shapes.medium,
@@ -156,14 +157,20 @@ fun AppFilePickerDialog(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(Spacing.XS),
                                     ) {
-                                        Text(
-                                            text = asset.name,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.weight(1f, fill = false),
-                                        )
+                                        if (abiTag != null) {
+                                            Surface(
+                                                shape = MaterialTheme.shapes.extraSmall,
+                                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                            ) {
+                                                Text(
+                                                    text = abiTag,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                    modifier = Modifier.padding(horizontal = Spacing.XS, vertical = 2.dp),
+                                                )
+                                            }
+                                        }
                                         if (isRecommended) {
                                             Surface(
                                                 shape = MaterialTheme.shapes.extraSmall,
@@ -178,7 +185,16 @@ fun AppFilePickerDialog(
                                             }
                                         }
                                     }
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = asset.name,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        maxLines = 3,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
                                     if (asset.sizeBytes > 0) {
+                                        Spacer(modifier = Modifier.height(2.dp))
                                         Text(
                                             text = formatBytes(asset.sizeBytes),
                                             style = MaterialTheme.typography.bodySmall,

@@ -5,6 +5,25 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val firebaseConfig = file("google-services.json")
+val hasFirebaseConfig = firebaseConfig.exists()
+
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
+
+    extensions.findByName("googleServices")?.let { ext ->
+        try {
+            val strategyClass = Class.forName("com.google.gms.googleservices.GoogleServicesPlugin\$MissingGoogleServicesStrategy")
+            val ignoreStrategy = strategyClass.enumConstants?.firstOrNull { (it as Enum<*>).name == "IGNORE" }
+            if (ignoreStrategy != null) {
+                ext.javaClass.getMethod("setMissingGoogleServicesStrategy", strategyClass)
+                    .invoke(ext, ignoreStrategy)
+            }
+        } catch (_: Throwable) {}
+    }
+}
+
 android {
     namespace = "app.pwhs.universalinstaller.wearos"
     compileSdk {
@@ -19,8 +38,8 @@ android {
         applicationId = "app.pwhs.universalinstaller"
         minSdk = 30
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1038
-        versionName = "1.17.0"
+        versionCode = 1039
+        versionName = "1.18.0"
     }
 
     // Same keystore as :app — a matching package name is not enough, the certificates must match too.
@@ -98,6 +117,11 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     // Coil — load APK icons
     implementation(libs.coil.compose)

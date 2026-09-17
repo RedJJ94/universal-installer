@@ -117,6 +117,7 @@ data class AppSettingsBackupDto(
     val apkExtractorOutputPath: String? = null,
     val apkExtractorFilenameTemplate: String? = null,
     val apkExtractorSplitFormat: String? = null,
+    val apkExtractorIncludeObb: Boolean? = null,
 
     // Manage Filter
     val manageSortBy: String? = null,

@@ -9,18 +9,26 @@ package app.pwhs.core.telemetry
 object TelemetryEvents {
 
     // ── Giai đoạn 1: Onboarding & Cấp Quyền (Permission Funnel) ───────────
+    const val EVENT_ONBOARDING_START = "onboarding_start"
+    const val EVENT_ONBOARDING_PAGE_VIEW = "onboarding_page_view"
+    const val EVENT_ONBOARDING_SKIPPED = "onboarding_skipped"
     const val EVENT_PERMISSION_REQUESTED = "permission_requested"
     const val EVENT_PERMISSION_RESULT = "permission_result"
     const val EVENT_ONBOARDING_COMPLETE = "onboarding_complete"
 
+    const val PARAM_PAGE_INDEX = "page_index"
+    const val PARAM_PERMISSION_NAME = "permission_name"
+    const val PARAM_GRANTED = "granted"
     const val PARAM_PERMISSION_TYPE = "permission_type"
     const val PARAM_STATUS = "status"
     const val PARAM_STEP_COUNT = "step_count"
     const val PARAM_DURATION_SEC = "duration_sec"
 
     const val PERM_STORAGE = "storage"
+    const val PERM_ALL_FILES = "all_files"
     const val PERM_MANAGE_EXTERNAL_STORAGE = "manage_external_storage"
     const val PERM_INSTALL_PACKAGES = "install_packages"
+    const val PERM_INSTALL_UNKNOWN_APPS = "install_unknown_apps"
     const val PERM_NOTIFICATIONS = "notifications"
 
     const val STATUS_GRANTED = "granted"
@@ -46,7 +54,11 @@ object TelemetryEvents {
     const val PARAM_IS_SPLIT = "is_split"
     const val PARAM_FILE_SIZE_MB = "file_size_mb"
     const val PARAM_ERROR_CODE = "error_code"
+    const val PARAM_ERROR_TYPE = "error_type"
+    const val PARAM_ERROR_REASON = "error_reason"
     const val PARAM_DURATION_MS = "duration_ms"
+    const val PARAM_SCREEN_NAME = "screen_name"
+    const val PARAM_SCREEN_CLASS = "screen_class"
 
     const val SOURCE_IN_APP_BROWSER = "in_app_browser"
     const val SOURCE_SYSTEM_FILE_PICKER = "system_file_picker"

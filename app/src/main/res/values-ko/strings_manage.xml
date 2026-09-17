@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">발견된 백업 내용</string>
     <string name="backup_restore_items_to_restore">복원할 항목 선택:</string>
     <string name="backup_restore_action">지금 복원</string>
+    <string name="backup_include_obb_title">OBB 및 미디어 데이터 포함</string>
+    <string name="backup_include_obb_desc">/Android/obb 확장 파일을 .xapk 백업에 보관</string>
 </resources>

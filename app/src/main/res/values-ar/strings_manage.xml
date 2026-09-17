@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">تم العثور على محتوى النسخة الاحتياطية</string>
     <string name="backup_restore_items_to_restore">حدد العناصر المراد استعادتها:</string>
     <string name="backup_restore_action">استعادة الآن</string>
+    <string name="backup_include_obb_title">تضمين بيانات OBB والوسائط</string>
+    <string name="backup_include_obb_desc">أرشفة ملفات توسعة /Android/obb في نسخة .xapk احتياطية</string>
 </resources>

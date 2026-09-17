@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">Conținut de rezervă găsit</string>
     <string name="backup_restore_items_to_restore">Selectați elementele de restaurat:</string>
     <string name="backup_restore_action">Restaurați acum</string>
+    <string name="backup_include_obb_title">Includeți datele OBB și media</string>
+    <string name="backup_include_obb_desc">Arhivați fișierele de extensie /Android/obb în backupul .xapk</string>
 </resources>

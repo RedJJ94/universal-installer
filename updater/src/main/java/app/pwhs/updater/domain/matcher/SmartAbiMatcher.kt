@@ -26,6 +26,22 @@ object SmartAbiMatcher {
     private val UNIVERSAL_TOKENS = listOf("universal", "all", "fat", "full")
 
     /**
+     * Detects an architecture tag from the asset filename (e.g. "arm64-v8a", "armeabi-v7a", "x86_64", "x86", "universal").
+     */
+    fun detectAbiTag(name: String): String? {
+        val lower = name.lowercase()
+        for ((canonical, aliases) in ABI_ALIASES) {
+            if (aliases.any { lower.contains(it) }) {
+                return canonical
+            }
+        }
+        if (UNIVERSAL_TOKENS.any { lower.contains(it) }) {
+            return "universal"
+        }
+        return null
+    }
+
+    /**
      * Selects the best asset from [assets] for the given [deviceAbis].
      */
     fun selectBestAsset(

@@ -19,6 +19,7 @@ data class InstalledAppItem(
 
 data class UpdatesUiState(
     val trackedApps: List<TrackedApp> = emptyList(),
+    val isLoading: Boolean = true,
     val isChecking: Boolean = false,
     val isAdding: Boolean = false,
     val isUpdatingAll: Boolean = false,

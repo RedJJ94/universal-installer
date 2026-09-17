@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">Знайдено вміст резервної копії</string>
     <string name="backup_restore_items_to_restore">Виберіть елементи для відновлення:</string>
     <string name="backup_restore_action">Відновити зараз</string>
+    <string name="backup_include_obb_title">Включити дані OBB та медіа</string>
+    <string name="backup_include_obb_desc">Архівувати файли розширення /Android/obb у резервну копію .xapk</string>
 </resources>

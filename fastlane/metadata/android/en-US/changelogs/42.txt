@@ -1,0 +1,6 @@
+• Added optional OBB and media data expansion backup into .xapk
+• Improved app update tracking and installation state detection
+• Added shimmer loading skeleton on updates list
+• Standardized installer error states and onboarding flow
+• UI and navigation bar inset refinements
+• Added Bengali (bn) language support

@@ -76,6 +76,36 @@ class TrackedAppTest {
     }
 
     @Test
+    fun isInstalled_notInstalled_returnsFalse() {
+        val app = trackedApp(
+            currentVersionName = "Not Installed",
+            currentVersionCode = 0L,
+        )
+
+        assertFalse(app.isInstalled)
+    }
+
+    @Test
+    fun isInstalled_blankVersion_returnsFalse() {
+        val app = trackedApp(
+            currentVersionName = "",
+            currentVersionCode = 0L,
+        )
+
+        assertFalse(app.isInstalled)
+    }
+
+    @Test
+    fun isInstalled_installedVersion_returnsTrue() {
+        val app = trackedApp(
+            currentVersionName = "1.0.0",
+            currentVersionCode = 100L,
+        )
+
+        assertTrue(app.isInstalled)
+    }
+
+    @Test
     fun hasUpdate_shizukuPlus_withInstalledVersionRegex_sameVersion_returnsFalse() {
         val app = trackedApp(
             currentVersionName = "Shizuku+ 13.6.0.r2499",
@@ -115,7 +145,7 @@ class TrackedAppTest {
     private fun trackedApp(
         currentVersionName: String,
         currentVersionCode: Long,
-        latestVersionName: String,
+        latestVersionName: String? = "1.0.0",
         latestDownloadUrl: String? = "https://example.com/app.apk",
         installedVersionRegex: String? = null,
         installedVersionMatchGroup: String? = null,

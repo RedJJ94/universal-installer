@@ -5,16 +5,19 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import app.pwhs.core.ui.component.verticalScrollbar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Launch
 import androidx.compose.material.icons.rounded.Block
@@ -90,6 +93,7 @@ fun TrackedAppDetailBottomSheet(
                     appName = app.appName,
                     iconUrl = app.iconUrl,
                     sourceUrl = app.sourceUrl,
+                    isInstalled = app.isInstalled,
                     size = 56.dp,
                 )
                 Spacer(modifier = Modifier.width(Spacing.M))
@@ -249,17 +253,27 @@ fun TrackedAppDetailBottomSheet(
                 fontWeight = FontWeight.Bold,
             )
             Spacer(modifier = Modifier.height(Spacing.S))
+            val changelogScrollState = rememberScrollState()
             Surface(
                 shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 240.dp),
             ) {
-                Text(
-                    text = app.releaseNotes?.takeIf { it.isNotBlank() } ?: "No release notes provided for this version.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(Spacing.M),
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(changelogScrollState)
+                        .verticalScrollbar(changelogScrollState)
+                        .padding(Spacing.M),
+                ) {
+                    Text(
+                        text = app.releaseNotes?.takeIf { it.isNotBlank() } ?: "No release notes provided for this version.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(Spacing.L))

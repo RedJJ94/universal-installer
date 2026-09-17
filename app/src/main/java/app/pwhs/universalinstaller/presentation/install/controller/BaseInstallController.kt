@@ -73,16 +73,12 @@ abstract class BaseInstallController(
             sessionFileSizes[id] = fileSizeBytes
         }
         Telemetry.setUserProperty(TelemetryEvents.PROPERTY_INSTALL_METHOD, method)
-        Telemetry.event(
-            TelemetryEvents.INSTALL_STARTED,
-            TelemetryEvents.PARAM_METHOD to method,
-            TelemetryEvents.PARAM_APK_COUNT to apkCount,
-        )
         app.pwhs.core.telemetry.AnalyticsHelper.logInstallStarted(
             fileType = fileType,
             installMode = method,
             isSplit = apkCount > 1,
             fileSizeBytes = fileSizeBytes,
+            fileCount = apkCount,
         )
     }
 
@@ -90,27 +86,30 @@ abstract class BaseInstallController(
         result: String,
         method: String = telemetryMethod,
         failureKey: String? = null,
+        errorCode: String? = null,
+        errorType: String? = null,
+        errorReason: String? = null,
         id: UUID? = null,
     ) {
         val durationMs = id?.let { sessionStartTimes.remove(it) }?.let { System.currentTimeMillis() - it } ?: 0L
         val fileType = id?.let { sessionFileTypes.remove(it) } ?: "apk"
         sessionFileSizes.remove(id)
 
-        Telemetry.event(
-            TelemetryEvents.INSTALL_RESULT,
-            TelemetryEvents.PARAM_METHOD to method,
-            TelemetryEvents.PARAM_RESULT to result,
-            TelemetryEvents.PARAM_FAILURE to failureKey,
-        )
         val status = when (result) {
             TelemetryEvents.RESULT_SUCCESS -> app.pwhs.core.telemetry.TelemetryEvents.RESULT_SUCCESS
             TelemetryEvents.RESULT_CANCELLED -> app.pwhs.core.telemetry.TelemetryEvents.RESULT_CANCELLED
             else -> app.pwhs.core.telemetry.TelemetryEvents.RESULT_FAILURE
         }
+        val resolvedErrorCode = errorCode ?: failureKey
+        val resolvedErrorType = errorType ?: failureKey
+        val resolvedErrorReason = errorReason ?: resolvedErrorCode
+
         app.pwhs.core.telemetry.AnalyticsHelper.logInstallResult(
             fileType = fileType,
             status = status,
-            errorCode = failureKey,
+            errorCode = resolvedErrorCode,
+            errorType = resolvedErrorType,
+            errorReason = resolvedErrorReason,
             installMode = method,
             durationMs = durationMs,
         )
@@ -306,9 +305,14 @@ abstract class BaseInstallController(
                     is Session.State.Failed -> {
                         // Reported before the null-context bail-out below, so failures on a
                         // session restored after a process death still show up in the numbers.
+                        val errorCode = InstallErrorHelper.extractErrorCode(result.failure)
+                        val errorType = InstallErrorHelper.classifyErrorType(result.failure, errorCode)
                         reportInstallResult(
                             TelemetryEvents.RESULT_FAILURE,
                             failureKey = InstallErrorHelper.failureKey(result.failure),
+                            errorCode = errorCode,
+                            errorType = errorType,
+                            errorReason = errorCode,
                             id = session.id,
                         )
                         if (context == null) return@launch
@@ -334,6 +338,13 @@ abstract class BaseInstallController(
                 successHooks.remove(session.id)
                 throw e
             } catch (e: Exception) {
+                reportInstallResult(
+                    TelemetryEvents.RESULT_FAILURE,
+                    errorCode = "INSTALL_FAILED_INTERNAL_ERROR",
+                    errorType = "internal_error",
+                    errorReason = e.javaClass.simpleName,
+                    id = session.id,
+                )
                 handleError(e.message, session.id)
                 Timber.e(e, "Session error")
             }

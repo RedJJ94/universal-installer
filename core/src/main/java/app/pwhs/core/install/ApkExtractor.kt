@@ -49,6 +49,7 @@ object ApkExtractor {
         outputDir: DocumentFile? = null,
         filenameTemplate: String = "{name}-{version}",
         splitFormat: SplitFormat = SplitFormat.APKS,
+        includeObb: Boolean = false,
         onProgress: (bytesCopied: Long, totalBytes: Long) -> Unit = { _, _ -> },
     ): Result = withContext(Dispatchers.IO) {
         val pm = context.packageManager
@@ -112,13 +113,24 @@ object ApkExtractor {
             code = versionCode.toString(),
             pkg = packageName,
         )
-        val isXapk = splitDirs.isNotEmpty() && splitFormat == SplitFormat.XAPK
+        val obbDir = File(Environment.getExternalStorageDirectory(), "Android/obb/$packageName")
+        val obbFiles = if (includeObb && obbDir.exists() && obbDir.isDirectory) {
+            obbDir.listFiles()?.filter { it.isFile && it.canRead() } ?: emptyList()
+        } else emptyList()
+
+        val mediaDir = File(Environment.getExternalStorageDirectory(), "Android/media/$packageName")
+        val mediaFiles = if (includeObb && mediaDir.exists() && mediaDir.isDirectory) {
+            mediaDir.walkTopDown().filter { it.isFile && it.canRead() }.toList()
+        } else emptyList()
+
+        val hasExpansionData = obbFiles.isNotEmpty() || mediaFiles.isNotEmpty()
+        val isXapk = (splitDirs.isNotEmpty() && splitFormat == SplitFormat.XAPK) || hasExpansionData
         val targetExt = when {
-            splitDirs.isEmpty() -> "apk"
             isXapk -> "xapk"
+            splitDirs.isEmpty() -> "apk"
             else -> "apks"
         }
-        val mimeType = if (splitDirs.isEmpty()) "application/vnd.android.package-archive" else "application/zip"
+        val mimeType = if (targetExt == "apk") "application/vnd.android.package-archive" else "application/zip"
         
         val finalFileName = uniqueName(targetDir, "$resolvedName.$targetExt")
         // Both RawDocumentFile (the default Downloads path) and the SAF providers append a
@@ -133,12 +145,10 @@ object ApkExtractor {
             runCatching { targetFile.renameTo(finalFileName) }
         }
 
-        val totalBytes = baseApk.length() + splitDirs.sumOf { it.length() }
+        val totalBytes = baseApk.length() + splitDirs.sumOf { it.length() } + obbFiles.sumOf { it.length() } + mediaFiles.sumOf { it.length() }
 
         return@withContext try {
             when {
-                splitDirs.isEmpty() ->
-                    copyFile(context, baseApk, targetFile, totalBytes, 0L, onProgress)
                 isXapk -> {
                     val manifest = buildXapkManifest(
                         packageName = packageName,
@@ -149,9 +159,23 @@ object ApkExtractor {
                         targetSdk = appInfo.targetSdkVersion,
                         baseApk = baseApk,
                         splits = splitDirs,
+                        obbFiles = obbFiles,
                     )
-                    writeXapkBundle(context, baseApk, splitDirs, manifest, targetFile, totalBytes, onProgress)
+                    writeXapkBundle(
+                        context = context,
+                        packageName = packageName,
+                        baseApk = baseApk,
+                        splits = splitDirs,
+                        obbFiles = obbFiles,
+                        mediaFiles = mediaFiles,
+                        manifestJson = manifest,
+                        target = targetFile,
+                        totalBytes = totalBytes,
+                        onProgress = onProgress,
+                    )
                 }
+                splitDirs.isEmpty() ->
+                    copyFile(context, baseApk, targetFile, totalBytes, 0L, onProgress)
                 else ->
                     writeSplitBundle(context, baseApk, splitDirs, targetFile, totalBytes, onProgress)
             }
@@ -218,8 +242,11 @@ object ApkExtractor {
      */
     private fun writeXapkBundle(
         context: Context,
+        packageName: String,
         baseApk: File,
         splits: List<File>,
+        obbFiles: List<File> = emptyList(),
+        mediaFiles: List<File> = emptyList(),
         manifestJson: String,
         target: DocumentFile,
         totalBytes: Long,
@@ -246,6 +273,18 @@ object ApkExtractor {
                     onProgress(copied + delta, totalBytes)
                 }
             }
+            for (obb in obbFiles) {
+                copied += addStoredEntry(zip, obb, "Android/obb/$packageName/${obb.name}") { delta ->
+                    onProgress(copied + delta, totalBytes)
+                }
+            }
+            val mediaBase = File(Environment.getExternalStorageDirectory(), "Android/media/$packageName")
+            for (media in mediaFiles) {
+                val relPath = media.relativeToOrNull(mediaBase)?.path ?: media.name
+                copied += addStoredEntry(zip, media, "Android/media/$packageName/$relPath") { delta ->
+                    onProgress(copied + delta, totalBytes)
+                }
+            }
         }
     }
 
@@ -264,6 +303,7 @@ object ApkExtractor {
         targetSdk: Int,
         baseApk: File,
         splits: List<File>,
+        obbFiles: List<File> = emptyList(),
     ): String {
         val splitApks = org.json.JSONArray()
         splitApks.put(org.json.JSONObject().put("file", "base.apk").put("id", "base"))
@@ -274,8 +314,8 @@ object ApkExtractor {
                     .put("id", splitId(split.name)),
             )
         }
-        val totalSize = baseApk.length() + splits.sumOf { it.length() }
-        return org.json.JSONObject()
+        val totalSize = baseApk.length() + splits.sumOf { it.length() } + obbFiles.sumOf { it.length() }
+        val json = org.json.JSONObject()
             .put("xapk_version", 2)
             .put("package_name", packageName)
             .put("name", appName)
@@ -285,7 +325,20 @@ object ApkExtractor {
             .put("target_sdk_version", if (targetSdk > 0) targetSdk.toString() else "")
             .put("total_size", totalSize)
             .put("split_apks", splitApks)
-            .toString(2)
+
+        if (obbFiles.isNotEmpty()) {
+            val expansions = org.json.JSONArray()
+            for (obb in obbFiles) {
+                expansions.put(
+                    org.json.JSONObject()
+                        .put("file", "Android/obb/$packageName/${obb.name}")
+                        .put("install_location", "EXTERNAL_STORAGE")
+                        .put("install_path", "Android/obb/$packageName/${obb.name}")
+                )
+            }
+            json.put("expansions", expansions)
+        }
+        return json.toString(2)
     }
 
     /** "split_config.arm64_v8a.apk" → "config.arm64_v8a"; otherwise the bare filename stem. */

@@ -189,4 +189,6 @@
     <string name="backup_restore_summary_title">已发现备份内容</string>
     <string name="backup_restore_items_to_restore">选择要恢复的项目：</string>
     <string name="backup_restore_action">立即恢复</string>
+    <string name="backup_include_obb_title">包含 OBB 和媒体数据</string>
+    <string name="backup_include_obb_desc">将 /Android/obb 扩展文件归档到 .xapk 备份中</string>
 </resources>

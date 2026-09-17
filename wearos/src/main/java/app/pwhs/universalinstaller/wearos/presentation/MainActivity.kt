@@ -94,6 +94,20 @@ fun WearNavGraph(
 ) {
     val navController = rememberSwipeDismissableNavController()
 
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { entry ->
+            val route = entry.destination.route ?: return@collect
+            val screenName = when {
+                route.startsWith("detail") -> "wear_detail"
+                else -> "wear_$route"
+            }
+            app.pwhs.core.telemetry.AnalyticsHelper.logScreenView(
+                screenName = screenName,
+                screenClass = "Wear_$route"
+            )
+        }
+    }
+
     LaunchedEffect(deepLinkApkId) {
         val id = deepLinkApkId ?: return@LaunchedEffect
         navController.navigate(Routes.detail(id))

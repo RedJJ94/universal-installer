@@ -37,11 +37,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,6 +58,7 @@ import app.pwhs.core.ui.component.EmptyStateView
 import app.pwhs.core.ui.theme.Spacing
 import app.pwhs.updater.domain.model.TrackedApp
 import app.pwhs.updater.presentation.component.TrackedAppCard
+import app.pwhs.updater.presentation.component.UpdatesSkeleton
 import app.pwhs.updater.presentation.component.UpdatesTopAppBar
 import app.pwhs.updater.presentation.dialog.EditCategoryDialog
 import app.pwhs.updater.presentation.dialog.TrackedAppDetailBottomSheet
@@ -129,10 +134,24 @@ fun UpdatesScreen(
         }
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshInstalledVersions()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             UpdatesTopAppBar(
                 uiState = uiState,
@@ -289,7 +308,9 @@ fun UpdatesScreen(
                     }
                 }
 
-                if (uiState.trackedApps.isEmpty()) {
+                if (uiState.isLoading) {
+                    UpdatesSkeleton()
+                } else if (uiState.trackedApps.isEmpty()) {
                     // Empty State
                     Box(
                         modifier = Modifier

@@ -144,12 +144,29 @@ class TvDialogInstallViewModel(application: Application) : AndroidViewModel(appl
             } else {
                 TelemetryEvents.RESULT_FAILURE
             }
-            val err = (result as? ApkInstaller.Result.Failure)?.message
+            val failureMessage = (result as? ApkInstaller.Result.Failure)?.message
+            val errorCode = failureMessage?.let { msg ->
+                val match = Regex("""\b(INSTALL_(?:PARSE_)?FAILED_[A-Z0-9_]+)\b""").find(msg)
+                match?.groupValues?.get(1) ?: "INSTALL_FAILED_UNKNOWN"
+            }
+            val errorType = if (errorCode != null) {
+                when {
+                    "SIGNATURE" in errorCode || "UPDATE_INCOMPATIBLE" in errorCode -> "signature_mismatch"
+                    "DOWNGRADE" in errorCode -> "version_downgrade"
+                    "STORAGE" in errorCode -> "insufficient_storage"
+                    "PARSE" in errorCode || "INVALID_APK" in errorCode -> "corrupted_package"
+                    "ABI" in errorCode || "SDK" in errorCode -> "incompatible_device"
+                    "RESTRICTED" in errorCode -> "permission_denied"
+                    else -> "os_blocked"
+                }
+            } else null
 
             AnalyticsHelper.logInstallResult(
                 fileType = ext,
                 status = status,
-                errorCode = err,
+                errorCode = errorCode,
+                errorType = errorType,
+                errorReason = errorCode,
                 installMode = installMode,
                 durationMs = durationMs
             )

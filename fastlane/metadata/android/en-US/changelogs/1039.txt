@@ -1,0 +1,3 @@
+• Integrated analytics and error diagnostics
+• Added Bengali (bn) language support
+• Watch UI refinements and stability improvements
